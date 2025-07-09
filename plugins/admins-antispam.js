@@ -1,6 +1,6 @@
 import db from '../lib/database.js';
 
-let handler = async (m, { text, args, command, isAdmin, isBotAdmin, isOwner }) => {
+let handler = async (m, { args, command, isAdmin }) => {
   if (!m.isGroup) return m.reply('❗ Este comando solo se puede usar en grupos.');
   if (!isAdmin) return m.reply('🚫 Solo los administradores pueden usar este comando.');
 
@@ -10,29 +10,26 @@ let handler = async (m, { text, args, command, isAdmin, isBotAdmin, isOwner }) =
 
   const opcion = (args[0] || '').toLowerCase();
 
-  if (command === 'activate' && opcion === 'antispam') {
+  if (command === 'activa' && opcion === 'antispam') {
     chat.antispam = true;
     return m.reply('✅ Función V2 activada: el sistema antispam está activo.');
   }
 
-  if (command === 'desactivate' && opcion === 'antispam') {
+  if (command === 'desactivarr') {
     chat.antispam = false;
     return m.reply('❎ Sistema antispam desactivado.');
   }
 
-  // Si escriben solo .activate o .desactivate sin "antispam"
-  if (command === 'activate') {
-    return m.reply('📌 Usa `.activate antispam` para activar que no hagan spam en el grupo.');
-  }
-
-  if (command === 'desactivate') {
-    return m.reply('📌 Usa `.desactivate antispam` para desactivar el sistema antispam.');
+  // Si escriben solo `.activa` sin "antispam"
+  if (command === 'activa') {
+    return m.reply('📌 Usa *.activa antispam* para activar el sistema antispam.');
   }
 };
 
-handler.command = ['activate', 'desactivate'];
+handler.command = ['activa', 'desactivarr'];
+handler.help = ['activa antispam', 'desactivarr'];
+handler.tags = ['admin'];
 handler.group = true;
 handler.admin = true;
-handler.botAdmin = false;
 
 export default handler;
