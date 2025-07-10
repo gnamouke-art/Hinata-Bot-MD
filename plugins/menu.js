@@ -4,7 +4,7 @@ let handler = async (m, { conn }) => {
     try {
         const botName = 'Hinata-Bot';
         const currency = '¥';
-        const videoUrl = 'https://o.uguu.se/OPPikcEx.mp4';
+        const videoUrl = 'https://n.uguu.se/yCTFGNTM.mp4';
         const vs = '1.0.0';
         const dev = 'NeoTokyo Beats';
         const copy = '🔧 Sistema personalizado';
