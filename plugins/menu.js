@@ -1,12 +1,10 @@
 import fs from 'fs';
-import axios from 'axios';
-import path from 'path';
 
 let handler = async (m, { conn }) => {
     try {
         const botName = 'Hinata-Bot';
         const currency = '¥';
-        const videoUrl = 'https://qu.ax/LNyXk.mp4'; // Asegúrate que esta URL esté funcionando
+        const videoUrl = 'https://qu.ax/LNyXk.mp4';
         const vs = '1.0.0';
         const dev = 'NeoTokyo Beats';
         const copy = '🔧 Sistema personalizado';
@@ -69,42 +67,80 @@ let handler = async (m, { conn }) => {
 ┃ ❖ .fakengl ⚡ — Nombre fake en inglés
 ╚═══════════════════════════╝
 
-╔═════════════════════════╝
+╔═══🔄≪ 𝘿𝙀𝙎𝘾𝘼𝙍𝙂𝘼𝙎 ≫🔄═══╗
+┃ 📥 Descarga tu contenido favorito
+┃ ✧ .playaudio ➩ (audio) 🎶
+┃ ✧ .ytmp4 ➩ (video) 🎬
+┃ ✧ .tt ➩ .tiktok ➩ TikTok 🎞️
+┃ ✧ .tiktokmp3 — Audio de TikTok 🎵
+┃ ✧ .sp ➩ .spotify ➩ Spotify 🎧
+┃ ✧ .tksearch 
+┃ ✧ .tourl .tourl2
+┃ ✧ .tourl3 .upload
+╚═══════════════════════════╝
+
+╔═══🎰≪ 𝙀𝘾𝙊𝙉𝙊𝙈𝙄𝘼 ≫🎰═══╗
+┃ 💰 Gana, roba y gestiona tu dinero
+┃ ❖ .work 👷🏻‍♂️ — Trabaja y gana ¥
+┃ ❖ .slut 😈 — Riesgo... o recompensa
+┃ ❖ .robar 👨🏻‍💻 — Roba a otro jugador
+┃ ❖ .deposit (¥) 🏦 — Deposita al banco
+┃ ❖ .retirar (¥) 🏧 — Retira del banco
+┃ ❖ .transferir (¥) @user 📨 — Envía dinero
+┃ ❖ .perfil 🆔 — Ver tu economía
+╚════════════════════════════╝
+
+╔═══⛩️≪ 𝙍𝙀𝘼𝘾𝘾𝙄𝙊𝙉𝙀𝙎 𝘼𝙉𝙄𝙈𝙀 ≫⛩️═══╗
+┃ 🎌 Expresa emociones al estilo anime
+┃ ♡ .abrazar 🫂 — Abrazo kawaii~
+┃ ♡ .aburrido 🙇🏻‍♂️ — Me aburro...
+┃ ♡ .bañarse 🛀🏻 — Hora del baño~
+┃ ♡ .bleh 🤸🏻‍♂️ — ¡Bleh~!
+┃ ♡ .comer 🍙 — Comiendo onigiri 🍙
+┃ ♡ .dance 💃🕺 — ¡Hora de bailar!
+┃ ♡ .enojado 🤦🏻‍♂️ — Estoy molesto
+┃ ♡ .feliz 😊 — Sonríe más, senpai~
+┃ ♡ .kiss 💋 — Envío un beso 💋
+┃ ♡ .love ❤️ — ¡Te amo!
+┃ ♡ .matar 🔪 — Hora de acabar contigo...
+┃ ♡ .morder 🦷 — Ñam~
+┃ ♡ .nalguear 🍑 — ¡Nalgadita!
+┃ ♡ .punch 👊 — Golpe directo~
+┃ ♡ .saludar 👋 — ¡Yaa~ hola!
+┃ ♡ .bofetada 🖐️ — ¡Toma esto!
+┃ ♡ .dormir 🛌🏻 — Zzz... durmiendo~
+┃ ♡ .smoke 🚬 — Fumando con estilo
+┃ ♡ .paja 🍆 — 🔞 [reacción subida de tono]
+╚════════════════════════════╝
+
+╔═══💥≪ 𝙏𝙊𝙊𝙇𝙎 ≫⛩️═══╗
+┃ 🧰 Cosas divertidas y cool
+┃ ✦ .ver — Reacciona a contenido "ver una vez" 👁️‍🗨️
+┃ ✦ .get — Descarga estados de WhatsApp 📥
+┃ ✦ .subirver — Sube como "ver una vez" 🔁
+┃ ✦ .rpf — Roba foto de perfil
+┃ ✦ .rpf2 — Roba perfil y nombre
+╚═════════════════════════╝
+
+╔════ ≪ ✨ ≫ ════╗
+│ ✨ 𝙎𝙊𝙇𝙊 𝙊𝙒𝙉𝙀𝙍 ✨ 
+│❀ .update ⭕
+│❀ .dsowner ➩ .purgar 🗑️
+│❀ .join 💎
+╚════ ≪ ✨ ≫ ════╝
 
 > ${copy} Hecho con mucho amor por ${dev}
 `;
 
-        // Descarga el video
-        const videoPath = path.join(__dirname, 'temp_video.mp4');
-        await downloadVideo(videoUrl, videoPath);
-
-        // Envía el mensaje con el video
         await conn.sendMessage(m.chat, {
-            video: { url: videoPath },
+            video: { url: videoUrl },
             caption: menuMessage,
             mentions: [m.sender]
+            // No uses gifPlayback si quieres que suene el video
         });
-
-        // Elimina el archivo temporal después de enviarlo
-        fs.unlinkSync(videoPath);
     } catch (error) {
         conn.reply(m.chat, `❌ Error al cargar el menú: ${error.message}`, m);
     }
-};
-
-// Función para descargar el video
-const downloadVideo = async (url, filePath) => {
-    const writer = fs.createWriteStream(filePath);
-    const response = await axios({
-        url,
-        method: 'GET',
-        responseType: 'stream',
-    });
-    response.data.pipe(writer);
-    return new Promise((resolve, reject) => {
-        writer.on('finish', resolve);
-        writer.on('error', reject);
-    });
 };
 
 handler.help = ['menu'];
