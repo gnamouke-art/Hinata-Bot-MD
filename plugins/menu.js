@@ -6,7 +6,7 @@ let handler = async (m, { conn }) => {
     try {
         const botName = 'Hinata-Bot';
         const currency = '¥';
-        const videoUrl = 'https://n.uguu.se/yCTFGNTM.mp4'; // Asegúrate que esta URL esté funcionando
+        const videoUrl = 'https://qu.ax/LNyXk.mp4'; // Asegúrate que esta URL esté funcionando
         const vs = '1.0.0';
         const dev = 'NeoTokyo Beats';
         const copy = '🔧 Sistema personalizado';
