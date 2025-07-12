@@ -53,7 +53,7 @@ let handler = async (m, { conn, command }) => {
         externalAdReply: {
           title: '⛏️ Sistema de Minería - Hinata RPG',
           body: '💎 ¡Explora y gana minerales únicos!',
-          thumbnailUrl: 'https://i.imgur.com/UqRkR08.jpg',
+          thumbnailUrl: 'https://h.uguu.se/dBRoQHTt.jpg',
           sourceUrl: 'https://whatsapp.com/channel/0029Vaqe1Iv65yDAKBYr6z0A',
           mediaType: 1,
           renderLargerThumbnail: true,
@@ -86,7 +86,7 @@ let handler = async (m, { conn, command }) => {
       externalAdReply: {
         title: '🎮 Hinata Bot RPG Oficial',
         body: '¡Canal de eventos, regalos y torneos activos!',
-        thumbnailUrl: 'https://i.imgur.com/UqRkR08.jpg',
+        thumbnailUrl: 'https://h.uguu.se/dBRoQHTt.jpg',
         sourceUrl: 'https://whatsapp.com/channel/0029Vaqe1Iv65yDAKBYr6z0A',
         mediaType: 1,
         showAdAttribution: true,
