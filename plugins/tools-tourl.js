@@ -28,9 +28,9 @@ let handler = async m => {
   }
 }
 
-handler.help = ["tourl2", "tourl"]
+handler.help = ["tourl2", "tourl3"]
 handler.tags = ["tools"]
-handler.command = /^(tourl2|tourl)$/i
+handler.command = /^(tourl2|tourl3)$/i
 export default handler
 
 async function uploadUguu(path) {
