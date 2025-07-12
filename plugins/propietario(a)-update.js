@@ -1,37 +1,30 @@
 import { execSync } from 'child_process';
 
-const handler = async (m, { conn, text }) => {
+const handler = async (m, { conn }) => {
   try {
-    // Ejecutar git pull
-    const stdout = execSync('git pull' + (m.fromMe && text ? ' ' + text : ''));
-    const output = stdout.toString();
+    // Asegúrate de que el remoto exista y se actualice
+    execSync('git remote set-url origin https://github.com/TOKIO5025/Hinata-Bot-MD.git');
+    execSync('git fetch origin');
+    
+    // Obtener lista de archivos cambiados entre HEAD y el último commit remoto
+    const diff = execSync('git diff --name-only HEAD origin/main').toString().trim().split('\n');
+    const cambiosPlugins = diff.filter(f => f.startsWith('plugins/') && f.endsWith('.js'));
 
-    // Verifica si ya está actualizado
-    if (output.includes('Already up to date.') || output.includes('Ya está actualizado')) {
+    if (cambiosPlugins.length === 0) {
       return conn.reply(m.chat, '❌ *no encontré actualizaciones en el plugins :*', m);
     }
 
-    // Detectar cambios en archivos específicos de /plugins/
-    let changed;
-    try {
-      changed = execSync('git diff --name-only HEAD@{1} HEAD').toString().split('\n');
-    } catch (e) {
-      return conn.reply(m.chat, '❌ Error al detectar cambios. ¿Tienes historial de commits?', m);
-    }
+    // Aplicar los cambios del remoto
+    execSync('git pull origin main');
 
-    const pluginsActualizados = changed.filter(file => file.startsWith('plugins/') && file.endsWith('.js'));
-
-    if (pluginsActualizados.length === 0) {
-      return conn.reply(m.chat, '❌ *no encontré actualizaciones en el plugins :*', m);
-    }
-
+    // Mostrar los archivos actualizados
     let mensaje = '✅ *Plugins actualizados correctamente:*\n\n';
-    mensaje += pluginsActualizados.map(f => `🆕 ${f}`).join('\n');
-    conn.reply(m.chat, mensaje, m);
+    mensaje += cambiosPlugins.map(f => `🆕 ${f}`).join('\n');
+    return conn.reply(m.chat, mensaje, m);
 
-  } catch (err) {
-    console.error('[ERROR en gitpull]:', err?.message || err);
-    conn.reply(m.chat, `❌ Error al actualizar el bot:\n${err.message || 'Error desconocido'}`, m);
+  } catch (e) {
+    console.error(e);
+    return conn.reply(m.chat, `❌ Error al actualizar:\n${e.message || e}`, m);
   }
 };
 
