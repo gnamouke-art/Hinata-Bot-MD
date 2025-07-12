@@ -1,73 +1,34 @@
-import { exec } from 'child_process';
-import util from 'util';
-const execPromise = util.promisify(exec);
+import { execSync } from 'child_process';
 
-const REPO_URL = 'https://github.com/TOKIO5025/Hinata-Bot-MD.git';
-const REPO_BRANCH = 'main';
-
-let handler = async (m) => {
-  const allowedUser = '50248019799';
-  if (m.sender.split('@')[0] !== allowedUser) {
-    return m.reply('❌ Este comando solo está disponible para mi creadora suprema 💖.');
-  }
-
+const handler = async (m, { conn, text }) => {
   try {
-    await m.reply('🔄 Buscando nuevas actualizaciones del sistema...');
+    const stdout = execSync('git pull' + (m.fromMe && text ? ' ' + text : ''));
+    const output = stdout.toString();
 
-    await execPromise('rm -rf ./tmp-repo');
-    await execPromise(`git clone --depth=1 --branch ${REPO_BRANCH} ${REPO_URL} ./tmp-repo`);
-
-    const { stdout: diffOutput } = await execPromise(`diff -qr ./tmp-repo ./ | grep -vE ".git|node_modules" || true`);
-
-    // Si no hay cambios, avisar
-    if (!diffOutput.trim()) {
-      await execPromise('rm -rf ./tmp-repo');
-      return m.reply('✅ El bot ya está actualizado. No se encontraron cambios.');
+    // Verificar si hubo cambios
+    if (output.includes('Already up to date.')) {
+      return conn.reply(m.chat, '❌ *no encontré actualizaciones en el plugins :*', m);
     }
 
-    // Copiar archivos nuevos/modificados
-    await execPromise('cp -ru ./tmp-repo/* ./');
-    await execPromise('rm -rf ./tmp-repo');
+    // Filtrar solo archivos en "plugins/" con extensión ".js"
+    const changedFiles = execSync('git diff --name-only HEAD@{1} HEAD').toString().split('\n');
+    const pluginChanges = changedFiles.filter(file => file.startsWith('plugins/') && file.endsWith('.js'));
 
-    // Ignorar carpetas y archivos basura
-    const ignorar = ['hinata-SubBots', '.cache', '.npm', 'Thumbs.db', 'tmp-repo'];
-
-    const cambiosFiltrados = diffOutput
-      .split('\n')
-      .filter(line => line.trim() && !ignorar.some(x => line.includes(x)))
-      .map(line => {
-        if (line.startsWith('Files')) {
-          const partes = line.split(' and ');
-          const archivo = partes[0].replace('Files ', '').trim().replace('./tmp-repo/', '');
-          return `📄 Modificado: ${archivo}`;
-        } else if (line.startsWith('Only in')) {
-          const match = line.match(/Only in\s+(.+?):\s+(.+)/);
-          if (match) {
-            const archivo = match[2].trim();
-            return `🆕 Agregado: ${archivo}`;
-          }
-        }
-        return null;
-      })
-      .filter(Boolean);
-
-    // Si después del filtro no queda nada, decir que no hay cambios
-    if (!cambiosFiltrados.length) {
-      return m.reply('✅ El bot ya está actualizado. No se encontraron cambios relevantes.');
+    if (pluginChanges.length === 0) {
+      return conn.reply(m.chat, '❌ *no encontré actualizaciones en el plugins :*', m);
     }
 
-    // Mostrar resultado
-    const resumen = cambiosFiltrados.join('\n');
-    await m.reply(`✅ *Actualización completada*\n\n📋 *Cambios detectados:*\n${resumen}`);
+    // Mensaje si se detectaron cambios en los plugins
+    let message = '✅ *Plugins actualizados correctamente:*\n\n';
+    message += pluginChanges.map(f => `🆕 ${f}`).join('\n');
+    conn.reply(m.chat, message, m);
 
-  } catch (e) {
-    console.error(e);
-    await m.reply('❌ *Error durante la actualización:*\n' + (e.message || e));
+  } catch (err) {
+    console.error(err);
+    conn.reply(m.chat, '❌ Hubo un error al intentar actualizar el bot.', m);
   }
 };
 
-handler.help = ['update'];
-handler.tags = ['tools'];
-handler.command = /^update$/i;
-
+handler.command = /^(update|actualizar|gitpull)$/i;
+handler.rowner = true;
 export default handler;
