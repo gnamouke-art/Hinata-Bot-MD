@@ -1,33 +1,64 @@
-import { execSync } from 'child_process';
+import { exec } from 'child_process';
+import util from 'util';
+const execPromise = util.promisify(exec);
 
-const handler = async (m, { conn }) => {
+// 🧠 CONFIGURA AQUÍ TU REPO (solo para uso interno)
+const REPO_URL = 'https://github.com/TOKIO5025/Hinata-Bot-MD.git';
+const REPO_BRANCH = 'main';
+
+let handler = async (m) => {
+  // Verifica si el mensaje viene de ti
+  const allowedUser = '50248019799'; // Solo tú puedes usar este comando
+  if (m.sender.split('@')[0] !== allowedUser) {
+    return m.reply('❌ Este comando solo está disponible para mi creador 🐉𝙉𝙚𝙤𝙏𝙤𝙠𝙮𝙤 𝘽𝙚𝙖𝙩𝙨🐲 💖.');
+  }
+
   try {
-    // Asegúrate de que el remoto exista y se actualice
-    execSync('git remote set-url origin https://github.com/TOKIO5025/Hinata-Bot-MD.git');
-    execSync('git fetch origin');
-    
-    // Obtener lista de archivos cambiados entre HEAD y el último commit remoto
-    const diff = execSync('git diff --name-only HEAD origin/main').toString().trim().split('\n');
-    const cambiosPlugins = diff.filter(f => f.startsWith('plugins/') && f.endsWith('.js'));
+    await m.reply('⚡ Buscando nuevas actualizaciones del plugins...');
 
-    if (cambiosPlugins.length === 0) {
-      return conn.reply(m.chat, '❌ *no encontré actualizaciones en el plugins :*', m);
+    // Eliminar carpeta temporal si ya existe
+    await execPromise('/tmp-repo');
+
+    // Clonar el repositorio en carpeta temporal
+    await execPromise(`git clone --depth=1 --branch ${REPO_BRANCH} ${REPO_URL} ./tmp-repo`);
+
+    // Comparar diferencias entre versiones
+    const { stdout: diffOutput } = await execPromise(`diff -qr ./tmp-repo ./ | grep -vE ".git|node_modules" || true`);
+
+    if (!diffOutput.trim()) {
+      await execPromise('rm -rf ./tmp-repo');
+      return m.reply('✅ El bot ya está actualizado. No se encontraron cambios.');
     }
 
-    // Aplicar los cambios del remoto
-    execSync('git pull origin main');
+    // Copiar archivos modificados o nuevos
+    await execPromise('/tmp-repo/* ./');
+    await execPromise('rm -rf ./tmp-repo');
 
-    // Mostrar los archivos actualizados
-    let mensaje = '✅ *Plugins actualizados correctamente:*\n\n';
-    mensaje += cambiosPlugins.map(f => `🆕 ${f}`).join('\n');
-    return conn.reply(m.chat, mensaje, m);
+    // Generar resumen de cambios
+    const resumen = diffOutput
+      .split('\n')
+      .filter(line => line.trim())
+      .map(line => {
+        if (line.startsWith('Files')) {
+          const partes = line.split(' and ');
+          return `📄 Modificado: ${partes[0].replace('Files ', '').trim()}`;
+        } else if (line.startsWith('Only in')) {
+          return `🆕 Nuevo archivo o carpeta: ${line.replace('Only in ', '').trim()}`;
+        } else {
+          return `📁 Otro cambio: ${line.trim()}`;
+        }
+      }).join('\n');
+
+    await m.reply(`✅ *Actualización completada*\n\n📋 *Cambios detectados:*\n${resumen}`);
 
   } catch (e) {
     console.error(e);
-    return conn.reply(m.chat, `❌ Error al actualizar:\n${e.message || e}`, m);
+    await m.reply('❌ *Error durante la actualización:*\n' + (e.message || e));
   }
 };
 
-handler.command = /^(update|actualizar|gitpull)$/i;
-handler.rowner = true;
+handler.help = ['update'];
+handler.tags = ['tools'];
+handler.command = /^update$/i;
+
 export default handler;
