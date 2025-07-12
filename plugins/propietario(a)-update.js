@@ -2,30 +2,36 @@ import { execSync } from 'child_process';
 
 const handler = async (m, { conn, text }) => {
   try {
+    // Ejecutar git pull
     const stdout = execSync('git pull' + (m.fromMe && text ? ' ' + text : ''));
     const output = stdout.toString();
 
-    // Verificar si hubo cambios
-    if (output.includes('Already up to date.')) {
+    // Verifica si ya está actualizado
+    if (output.includes('Already up to date.') || output.includes('Ya está actualizado')) {
       return conn.reply(m.chat, '❌ *no encontré actualizaciones en el plugins :*', m);
     }
 
-    // Filtrar solo archivos en "plugins/" con extensión ".js"
-    const changedFiles = execSync('git diff --name-only HEAD@{1} HEAD').toString().split('\n');
-    const pluginChanges = changedFiles.filter(file => file.startsWith('plugins/') && file.endsWith('.js'));
+    // Detectar cambios en archivos específicos de /plugins/
+    let changed;
+    try {
+      changed = execSync('git diff --name-only HEAD@{1} HEAD').toString().split('\n');
+    } catch (e) {
+      return conn.reply(m.chat, '❌ Error al detectar cambios. ¿Tienes historial de commits?', m);
+    }
 
-    if (pluginChanges.length === 0) {
+    const pluginsActualizados = changed.filter(file => file.startsWith('plugins/') && file.endsWith('.js'));
+
+    if (pluginsActualizados.length === 0) {
       return conn.reply(m.chat, '❌ *no encontré actualizaciones en el plugins :*', m);
     }
 
-    // Mensaje si se detectaron cambios en los plugins
-    let message = '✅ *Plugins actualizados correctamente:*\n\n';
-    message += pluginChanges.map(f => `🆕 ${f}`).join('\n');
-    conn.reply(m.chat, message, m);
+    let mensaje = '✅ *Plugins actualizados correctamente:*\n\n';
+    mensaje += pluginsActualizados.map(f => `🆕 ${f}`).join('\n');
+    conn.reply(m.chat, mensaje, m);
 
   } catch (err) {
-    console.error(err);
-    conn.reply(m.chat, '❌ Hubo un error al intentar actualizar el bot.', m);
+    console.error('[ERROR en gitpull]:', err?.message || err);
+    conn.reply(m.chat, `❌ Error al actualizar el bot:\n${err.message || 'Error desconocido'}`, m);
   }
 };
 
