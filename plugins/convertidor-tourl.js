@@ -1,147 +1,65 @@
-import fs from "fs"
-import fetch from "node-fetch"
-import FormData from "form-data"
-import { fileTypeFromFile } from "file-type"
+import fetch from "node-fetch";
+import crypto from "crypto";
+import { FormData, Blob } from "formdata-node";
+import { fileTypeFromBuffer } from "file-type";
 
-let handler = async m => {
+let handler = async (m, { conn }) => {
+  let q = m.quoted ? m.quoted : m;
+  let mime = (q.msg || q).mimetype || '';
+  if (!mime) return conn.reply(m.chat, `Por favor, responde a un archivo válido (imagen, video, etc.).`, m, rcanal);
+
+  await m.react("📍");
+
   try {
-    const q = m.quoted || m
-    const mime = q.mediaType || ""
+    let media = await q.download();
+    let isTele = /image\/(png|jpe?g|gif)|video\/mp4/.test(mime);
+    let link = await catbox(media);
 
-    if (!/image|video|audio|sticker|document/.test(mime))
-      throw `
-╭─❍ 𓂃 💌 ⌗ ʜɪɴᴀᴛᴀ-ʙᴏᴛ ⊰❀
-│🌸 Responde a una imagen, video, audio o archivo...
-│✨ ¡Lo convertiré en un enlace mágico para ti!
-╰─────────────✧
-`
+    let txt = `*乂 U P L O A D E R 乂*\n\n`;
+    txt += `*⟩ Enlace* : ${link}\n`;
+    txt += `*⟩ Tamaño* : ${formatBytes(media.length)}\n`;
+    txt += `*⟩ Expiración* : ${isTele ? 'No expira' : 'Desconocido'}\n\n`;
+    txt += `> *${namebot}*`;
 
-    const media = await q.download(true)
-    const stats = fs.statSync(media)
-    const sizeKB = (stats.size / 1024).toFixed(2) + " KB"
+    await conn.sendFile(m.chat, media, 'thumbnail.jpg', txt, m, rcanal);
 
-    if (stats.size === 0) {
-      await m.reply(`┏彡 💔 Oopsi...
-┃🌸 El archivo es muy ligerito...
-┃🧸 No puedo subirlo así, ¿me das otro?
-┗彡`)
-      await fs.promises.unlink(media)
-      return
-    }
-
-    if (stats.size > 1073741824) {
-      await m.reply(`
-╭─❍ 🚫 Tamaño superado
-│😿 Este archivo pesa más de 1GB.
-│🎀 No puedo con tanto, lo siento...
-╰───────────────`)
-      await fs.promises.unlink(media)
-      return
-    }
-
-    // Subidas
-    const uguu = await uploadUguu(media)
-    const tmpfiles = await uploadTmpFiles(media)
-    const litter = await uploadLitterbox(media)
-    const telegraph = await uploadTelegraph(media)
-
-    // Mensaje decorado
-    const msg = `
-乂  *L I N K S - E N L A C E S*  乂
-
-*🌸 Uguu*
-• Enlace: ${uguu}
-• Tamaño: ${sizeKB}
-• Expiración: 24h aprox
-
-*🍥 TmpFiles*
-• Enlace: ${tmpfiles}
-• Tamaño: ${sizeKB}
-• Expiración: Desconocido
-
-*🐾 Litterbox*
-• Enlace: ${litter}
-• Tamaño: ${sizeKB}
-• Expiración: 24h
-
-*📜 Telegraph*
-• Enlace: ${telegraph}
-• Tamaño: ${sizeKB}
-• Expiración: Solo imágenes, no expira
-
-╰⊹⃝ ⍴᥆ᥕᥱrᥱძ ᑲᥡ  🐉𝙉𝙚𝙤𝙏𝙤𝙠𝙮𝙤 𝘽𝙚𝙖𝙩𝙨🐲
-_♡ Presiona un enlace para copiar..._
-`.trim()
-
-    await m.reply(msg)
-    await fs.promises.unlink(media)
-
-  } catch (e) {
-    await m.reply(`
-╭─❍ 😵‍💫 Error
-│❗ ${e}
-╰────────────`)
+    await m.react("✅");
+  } catch {
+    await m.react("😩");
   }
-}
+};
 
-handler.help = ["tourl", "t"]
-handler.tags = ["tools"]
-handler.command = /^(t|tourl)$/i
-export default handler
+handler.help = ['tourl'];
+handler.tags = ['tools'];
+handler.command = ['catbox', 'tourl'];
+handler.register = true
+export default handler;
 
-// 🌸 Subidas individuales
-async function uploadUguu(filePath) {
-  const form = new FormData()
-  form.append("files[]", fs.createReadStream(filePath))
-  const res = await fetch("https://uguu.se/upload.php", {
-    method: "POST",
-    body: form,
-    headers: form.getHeaders()
-  })
-  const json = await res.json()
-  return json.files[0]?.url || "❌ Falló"
-}
-
-async function uploadTmpFiles(filePath) {
-  const form = new FormData()
-  form.append("file", fs.createReadStream(filePath))
-  const res = await fetch("https://tmpfiles.org/api/v1/upload", {
-    method: "POST",
-    body: form
-  })
-  const json = await res.json()
-  return json?.data?.url || "❌ Falló"
-}
-
-async function uploadLitterbox(filePath) {
-  const form = new FormData()
-  form.append("reqtype", "fileupload")
-  form.append("time", "24h")
-  form.append("fileToUpload", fs.createReadStream(filePath))
-  const res = await fetch("https://litter.catbox.moe/api.php", {
-    method: "POST",
-    body: form
-  })
-  const url = await res.text()
-  return url || "❌ Falló"
-}
-
-async function uploadTelegraph(filePath) {
-  const type = await fileTypeFromFile(filePath)
-  if (!type || !["image/jpeg", "image/png", "image/gif"].includes(type.mime)) {
-    return "❌ Solo se aceptan imágenes JPG/PNG/GIF"
+function formatBytes(bytes) {
+  if (bytes === 0) {
+    return '0 B';
   }
+  const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(1024));
+  return `${(bytes / 1024 ** i).toFixed(2)} ${sizes[i]}`;
+}
 
-  const form = new FormData()
-  form.append("file", fs.createReadStream(filePath))
+async function catbox(content) {
+  const { ext, mime } = (await fileTypeFromBuffer(content)) || {};
+  const blob = new Blob([content.toArrayBuffer()], { type: mime });
+  const formData = new FormData();
+  const randomBytes = crypto.randomBytes(5).toString("hex");
+  formData.append("reqtype", "fileupload");
+  formData.append("fileToUpload", blob, randomBytes + "." + ext);
 
-  const res = await fetch("https://telegra.ph/upload", {
+  const response = await fetch("https://catbox.moe/user/api.php", {
     method: "POST",
-    body: form
-  })
+    body: formData,
+    headers: {
+      "User-Agent":
+        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36",
+    },
+  });
 
-  const json = await res.json()
-  if (!json[0]?.src) return "❌ Falló la subida a Telegraph"
-
-  return "https://telegra.ph" + json[0].src
+  return await response.text();
 }
