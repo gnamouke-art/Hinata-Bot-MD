@@ -1,43 +1,50 @@
-import https from 'https';
-import fs from 'fs';
 import { exec } from 'child_process';
-import unzipper from 'unzipper';
+import util from 'util';
+const execPromise = util.promisify(exec);
 
-let handler = async (m, { conn }) => {
-  const zipUrl = 'https://github.com/TOKIO5025/Hinata-Bot-MD/archive/refs/heads/main.zip';
-  const zipPath = './actualizacion.zip';
+// ⚙️ Configura tu repo
+const REPO_URL = 'https://github.com/TOKIO5025/Hinata-Bot-MD.git';
+const REPO_BRANCH = 'main';
 
-  await conn.reply(m.chat, '🔄 *Descargando actualización del repositorio...*', m);
+let handler = async (m) => {
+  const allowedUser = '50248019799'; // solo tú
 
-  const file = fs.createWriteStream(zipPath);
-  https.get(zipUrl, response => {
-    response.pipe(file);
-    file.on('finish', () => {
-      file.close();
+  if (m.sender.split('@')[0] !== allowedUser) {
+    return m.reply('❌ Este comando solo está disponible para mi creadora suprema 💖.');
+  }
 
-      fs.createReadStream(zipPath)
-        .pipe(unzipper.Extract({ path: './temp_update' }))
-        .on('close', () => {
-          const src = './temp_update/Hinata-Bot-MD-main/';
-          const dest = './';
+  try {
+    await m.reply('🌀 *Buscando actualizaciones...*');
 
-          exec(`cp -r ${src}* ${dest}`, async (err) => {
-            if (err) {
-              console.error(err);
-              return conn.reply(m.chat, '❌ *Error al copiar los archivos actualizados.*', m);
-            }
+    // Limpiar carpeta temporal
+    await execPromise('rm -rf ./tmp-repo');
 
-            fs.rmSync('./temp_update', { recursive: true, force: true });
-            fs.unlinkSync(zipPath);
+    // Clonar repositorio temporal
+    await execPromise(`git clone --depth=1 --branch ${REPO_BRANCH} ${REPO_URL} ./tmp-repo`);
 
-            await conn.reply(m.chat, '✅ *Actualización completada correctamente desde ZIP.*', m);
-          });
-        });
-    });
-  });
+    // Comparar cambios
+    const { stdout: diffOutput } = await execPromise(`diff -qr ./tmp-repo ./ | grep -vE ".git|node_modules" || true`);
+
+    if (!diffOutput.trim()) {
+      await execPromise('rm -rf ./tmp-repo');
+      return m.reply('✅ *El bot ya está actualizado.*');
+    }
+
+    // Aplicar cambios
+    await execPromise('cp -ru ./tmp-repo/* ./');
+    await execPromise('rm -rf ./tmp-repo');
+
+    // ✅ Mostrar solo confirmación
+    await m.reply('✅ *Bot actualizado correctamente.*');
+
+  } catch (e) {
+    console.error(e);
+    await m.reply('❌ *Error durante la actualización:*\n' + (e.message || e));
+  }
 };
 
-handler.command = ['updatezip', 'actualizarzip'];
-handler.rowner = true;
+handler.help = ['update'];
+handler.tags = ['tools'];
+handler.command = /^update$/i;
 
 export default handler;
