@@ -1,46 +1,43 @@
-import { execSync } from 'child_process';
+import https from 'https';
 import fs from 'fs';
+import { exec } from 'child_process';
+import unzipper from 'unzipper';
 
 let handler = async (m, { conn }) => {
-  try {
-    // Obtenemos el último estado del repositorio
-    execSync('git fetch');
+  const zipUrl = 'https://github.com/TOKIO5025/Hinata-Bot-MD/archive/refs/heads/main.zip';
+  const zipPath = './actualizacion.zip';
 
-    // Verificamos los cambios nuevos (archivos modificados o agregados)
-    let output = execSync('git diff --name-status origin/main').toString().trim();
+  await conn.reply(m.chat, '🔄 *Descargando actualización del repositorio...*', m);
 
-    if (!output) {
-      return conn.reply(m.chat, '✨ *Todo está actualizado, no hay cambios nuevos en el repositorio.*', m);
-    }
+  const file = fs.createWriteStream(zipPath);
+  https.get(zipUrl, response => {
+    response.pipe(file);
+    file.on('finish', () => {
+      file.close();
 
-    // Lista de cambios detectados
-    let cambios = output
-      .split('\n')
-      .map(line => {
-        const [status, file] = line.split('\t');
-        const emoji = status === 'A' ? '🆕' : status === 'M' ? '📝' : '❓';
-        return `${emoji} ${status === 'A' ? 'Nuevo archivo' : 'Modificado'}: \`${file}\``;
-      })
-      .join('\n');
+      fs.createReadStream(zipPath)
+        .pipe(unzipper.Extract({ path: './temp_update' }))
+        .on('close', () => {
+          const src = './temp_update/Hinata-Bot-MD-main/';
+          const dest = './';
 
-    // Hacemos pull de los cambios
-    execSync('git pull');
+          exec(`cp -r ${src}* ${dest}`, async (err) => {
+            if (err) {
+              console.error(err);
+              return conn.reply(m.chat, '❌ *Error al copiar los archivos actualizados.*', m);
+            }
 
-    // Imagen para el canal
-    let image = 'https://h.uguu.se/wvsHCRNf.jpg';
+            fs.rmSync('./temp_update', { recursive: true, force: true });
+            fs.unlinkSync(zipPath);
 
-    // Enviamos respuesta al canal del bot (puedes modificar el jid del canal si lo usas así)
-    conn.sendFile(m.chat, image, 'actualizado.jpg', `✅ *Actualización completada del repositorio.*\n\n📋 *Cambios detectados:*\n${cambios}`, m);
-
-  } catch (err) {
-    console.error(err);
-    return conn.reply(m.chat, '❌ *Error al actualizar el bot.*\nVerifica que tengas git instalado y estés dentro de una carpeta git.', m);
-  }
+            await conn.reply(m.chat, '✅ *Actualización completada correctamente desde ZIP.*', m);
+          });
+        });
+    });
+  });
 };
 
-handler.command = ['update', 'actualizar'];
-handler.owner = true;
-handler.premium = false;
-handler.group = false;
+handler.command = ['updatezip', 'actualizarzip'];
+handler.rowner = true;
 
 export default handler;
