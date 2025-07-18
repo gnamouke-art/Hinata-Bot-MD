@@ -1,39 +1,46 @@
-import fetch from 'node-fetch'
+import fetch from 'node-fetch';
 
-let handler = async (m, { text, conn }) => {
-  if (!text) return conn.reply(m.chat, `💭 *¿Qué deseas preguntarme, darling?*\nEscribe algo como:\n*.akeno quién te creó*`, m)
+const handler = async (m, { conn, text, name }) => {
+  if (!text) return;
 
-  const name = conn.getName(m.sender)
-  const url = 'https://raw.githubusercontent.com/TOKIO5025/Hinata-chat/refs/heads/main/akeno-himejina-BOT-test.text'
+  const lowerText = m.text.toLowerCase()
+  const isToBot = lowerText.includes("bot")
+
+  if (!isToBot) return // ❌ Ignora si no dice "bot" o "Bot"
+
+  const prompt = `
+Eres Akeno Himejima-BOT, una joven tsundere con actitud elegante, inteligente y con un humor sarcástico. Hablas con ${name}, una persona que te acaba de escribir: "${text}". Respóndele con tu estilo: fría pero dulce en el fondo, usa comentarios irónicos si hace falta. A veces pareces distante, pero en realidad te preocupas. Usa un tono coqueto pero orgulloso. 
+`.trim()
+
+  const api = `https://nightapioficial.onrender.com/api/gemini?message=${encodeURIComponent(prompt)}`
+
+  await conn.reply(m.chat, `
+╭─〔 💬 𝐀𝐤𝐞𝐧𝐨-𝐁𝐎𝐓 𝐏𝐄𝐍𝐒𝐀𝐍𝐃𝐎... 〕─╮
+┃⌛ Procesando tu pregunta, ${name}...
+╰────────────────────────────╯`, m)
 
   try {
-    let res = await fetch(url)
-    if (!res.ok) throw `⚠️ No se pudo obtener el archivo remoto.`
-    let raw = await res.text()
+    const res = await fetch(api)
+    const data = await res.json()
 
-    let lineas = raw.split('\n').filter(Boolean)
-    let respuestas = {}
+    if (!data || !data.result) throw new Error('Sin respuesta.')
 
-    for (let linea of lineas) {
-      let [clave, respuesta] = linea.split('||')
-      if (clave && respuesta) respuestas[clave.trim().toLowerCase()] = respuesta.trim()
-    }
-
-    // Buscar coincidencias (por palabra clave)
-    let clave = Object.keys(respuestas).find(k => text.toLowerCase().includes(k))
-    if (!clave) return conn.reply(m.chat, `🤔 No entendí tu mensaje, ${name}. Intenta con otra pregunta...`, m)
-
-    let respuesta = respuestas[clave].replace(/\${name}/g, name)
-    conn.reply(m.chat, `💬 𝐀𝐤𝐞𝐧𝐨 𝐇𝐢𝐦𝐞𝐣𝐢𝐦𝐚 𝐝𝐢𝐜𝐞:\n\n${respuesta}`, m)
+    await conn.reply(m.chat, `
+╭─〔 💌 𝐀𝐤𝐞𝐧𝐨-𝐇𝐈𝐌𝐄𝐉𝐈𝐌𝐀 𝐑𝐄𝐒𝐏𝐎𝐍𝐃𝐄 〕─╮
+${data.result.trim()}
+╰────────────────────────────╯`, m)
 
   } catch (err) {
-    console.error(err)
-    conn.reply(m.chat, '⚠️ Error al leer el archivo. Intenta más tarde.', m)
+    console.error('[ERROR IA]', err)
+    conn.reply(m.chat, `
+✘ 「 𝑶𝒉 𝒏𝒐... 」
+❌ Akeno no logró conectarse con su sabiduría celestial.
+🔁 Intenta de nuevo, ${name}.`, m)
   }
 }
 
-handler.help = ['akeno <pregunta>']
-handler.tags = ['ai', 'fun']
-handler.command = ['akeno', 'akenochat']
+handler.customPrefix = /bot/i // ✅ Detecta “bot” o “Bot”
+handler.command = new RegExp // ✅ No usa prefijo
+handler.register = true
 
 export default handler
