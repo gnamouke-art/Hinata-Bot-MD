@@ -1,44 +1,62 @@
 import fetch from 'node-fetch';
 
-var handler = async (m, { conn, args, usedPrefix, command }) => {
-    if (!args[0]) {
-        throw m.reply(`*🐉 Ejemplo: ${usedPrefix + command}* https://vm.tiktok.com/ZMhAk8tLx/`);
+let handler = async (m, { conn, args, usedPrefix, command }) => {
+  if (!args[0]) {
+    return m.reply(`🌸 *Usa el comando correctamente:*\n\n✨ *Ejemplo:* ${usedPrefix + command} https://www.tiktok.com/@usuario/video/123456789`);
+  }
+
+  try {
+    await conn.reply(m.chat, '🌙 *Invocando a los dioses del audio... espera un momento* 🎧', m);
+
+    const res = await tiktokdl(args[0]);
+
+    if (!res || !res.data || !res.data.music) {
+      return m.reply('❌ *No se pudo obtener el audio del TikTok.*\nAsegúrate de que el enlace sea válido.');
     }
 
-    try {
-        await conn.reply(m.chat, "☁️ *Espere un momento, estoy descargando su audio...*", m);
+    const audio = res.data.music;
+    const info = res.data;
 
-        const tiktokData = await tiktokdl(args[0]);
+    const texto = `
+🍁 *Audio de TikTok extraído con éxito:*\n
+📌 *Título:* ${info.title || 'Desconocido'}
+🎤 *Sonido:* ${info.music_info?.title || 'Sin info'}
+🧑🏻‍💻 *Usuario:* @${info.author?.unique_id || 'desconocido'}
+🫧 *Nombre:* ${info.author?.nickname || 'No disponible'}
+📅 *Publicado:* ${info.create_time || 'No disponible'}
 
-        if (!tiktokData) {
-            throw m.reply("Error api!");
-        }
+🎯 *Estadísticas:*
+💗 Likes: ${info.digg_count}
+💬 Comentarios: ${info.comment_count}
+🔁 Compartido: ${info.share_count}
+👁️‍🗨️ Vistas: ${info.play_count}
+⬇️ Descargas: ${info.download_count}
 
-        const audioURL = tiktokData.data.music; // URL del audio
-        const infonya_gan = `*📖 Descripción:* ${tiktokData.data.title}\n*🚀 Publicado:* ${tiktokData.data.create_time}\n\n*⚜️ Estado:*\n=====================\nLikes = ${tiktokData.data.digg_count}\nComentarios = ${tiktokData.data.comment_count}\nCompartidas = ${tiktokData.data.share_count}\nVistas = ${tiktokData.data.play_count}\nDescargas = ${tiktokData.data.download_count}\n=====================\n\nUploader: ${tiktokData.data.author.nickname || "No info"}\n(${tiktokData.data.author.unique_id} - https://www.tiktok.com/@${tiktokData.data.author.unique_id})\n*🔊 Sonido:* ${tiktokData.data.music}\n`;
+🔗 https://tiktok.com/@${info.author?.unique_id || ''}/video/${info.video_id || ''}
+`.trim();
 
-        if (audioURL) {
-            await conn.sendFile(m.chat, audioURL, "audio.mp3", "`DESCARGA DE AUDIO DE TIKTOK`" + `\n\n${infonya_gan}`, m);
-        } else {
-            throw m.reply("💨 *No se pudo descargar el audio.*");
-        }
-    } catch (error1) {
-        conn.reply(m.chat, `Error: ${error1}`, m);
-    }
+    await conn.sendFile(m.chat, audio, 'tiktok-audio.mp3', texto, m, null, {
+      mimetype: 'audio/mp4'
+    });
+
+  } catch (e) {
+    console.error(e);
+    m.reply(`🚫 *Ocurrió un error inesperado:*\n\n${e.message}`);
+  }
 };
 
 handler.help = ['ttmp3', 'tiktokmp3'];
 handler.tags = ['descargas'];
 handler.command = /^ttmp3|tiktokmp3$/i;
-
-handler.disable = false;
-handler.register = true;
 handler.limit = true;
+handler.register = true;
 
 export default handler;
 
+// Función para descargar desde TikWM
 async function tiktokdl(url) {
-    let tikwm = `https://www.tikwm.com/api/?url=${url}?hd=1`;
-    let response = await (await fetch(tikwm)).json();
-    return response;
-}
+  const api = `https://www.tikwm.com/api/?url=${encodeURIComponent(url)}&hd=1`;
+  const res = await fetch(api);
+  const json = await res.json();
+  return json;
+        }
