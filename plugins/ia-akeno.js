@@ -1,42 +1,34 @@
-import fetch from 'node-fetch';
+let handler = async (m, { conn, name }) => {
+  const texto = m.text.toLowerCase()
 
-const handler = async (m, { text, conn }) => {
-  if (!text) {
-    return conn.reply(m.chat, `
-✘ 「 𝑴𝑬𝑵𝑺𝑨𝑱𝑬 𝑭𝑨𝑳𝑻𝑨𝑵𝑻𝑬 」
-➤ Usa: *abuela ¿Cuál es el secreto del universo?*`, m);
-  }
+  // Palabras clave para activar a Akeno
+  const activadores = ['bot', 'akeno', 'himejima', 'senpai', 'kunoichi']
 
-  const prompt = `Eres una abuela. comportate como una abuela y este es tu nieto que dice: ${text}`;
-  const api = `https://nightapioficial.onrender.com/api/gemini?message=${encodeURIComponent(prompt)}`;
+  if (!activadores.some(palabra => texto.includes(palabra))) return
 
-  await conn.reply(m.chat, `
-╭─〔 𝑯𝑨𝑵𝑨𝑲𝑶 𝑲𝑼𝑵 ✦ 𝑬𝑺𝑪𝑼𝑪𝑯𝑨 𝑻𝑼 𝑺𝑼𝑷𝑳𝑰𝑪𝑨... 〕─╮
-┃⌛ 𝑷𝒆𝒏𝒔𝒂𝒏𝒅𝒐 𝒅𝒆𝒔𝒅𝒆 𝒆𝒍 𝒎𝒂́𝒔 𝒂𝒍𝒍𝒂́...
-╰────────────────────────────╯`, m);
+  // Lista de respuestas estilo Akeno Himejima
+  const respuestas = [
+    `¿Qué quieres ahora, ${name}? No tengo tiempo para juegos... aunque... puedo escucharte un rato. 🙄`,
+    `Hmph, solo porque lo pediste tú, ${name}... pero no te acostumbres.`,
+    `¿Eh? ¿Akeno? Ah, soy yo... No te pongas raro, baka. 😳`,
+    `Podrías decir *por favor*, ¿sabes? Aunque... está bien, dime qué necesitas.`,
+    `No es que me importe lo que digas, pero aquí estoy escuchándote, ¿sí?`,
+    `Tsk... ¿por qué siempre me buscas a mí? Ugh, está bien... soy toda oídos.`,
+    `¿Otra vez tú, ${name}? Qué molesto... aunque, no me disgusta tanto como pensaba.`,
+    `Si vas a molestarme, al menos tráeme algo dulce. ¿No sabes que me gustan los peluches?`,
+    `Deja de mirarme así... no es como si me gustaras ni nada... Baka.`,
+    `¡¿E-eh?! ¿Por qué dices eso? ¡No malinterpretes las cosas, ${name}!`,
+    `A veces pienso que eres un caso perdido... pero supongo que alguien debe cuidarte.`,
+    `Si te portas bien, tal vez te deje ver mi lado tierno. Solo tal vez.`,
+    `Estás siendo molesto... aunque, eso tiene su encanto. 🙃`
+  ]
 
-  try {
-    const res = await fetch(api);
-    const data = await res.json();
+  let respuesta = respuestas[Math.floor(Math.random() * respuestas.length)]
+  conn.reply(m.chat, `🖤 *Akeno Himejima-BOT* responde:\n${respuesta}`, m)
+}
 
-    if (!data || !data.result) throw new Error('Respuesta vacía');
+handler.customPrefix = /bot|akeno|himejima|senpai|kunoichi/i
+handler.command = new RegExp // sin prefijo
+handler.register = true
 
-    await conn.reply(m.chat, `
-╭─〔 𝑯𝑨𝑵𝑨𝑲𝑶 𝑲𝑼𝑵 ✦ 𝑹𝑬𝑺𝑷𝑼𝑬𝑺𝑻𝑨 〕─╮
-${data.result.trim()}
-╰────────────────────────────╯`, m);
-  } catch (err) {
-    console.error('[ERROR en Hanako IA]', err);
-    conn.reply(m.chat, `
-✘ 「 𝑶𝑯 𝑵𝑶... 」
-➤ Hanako-kun no pudo conectarse con la sabiduría.
-➤ Intenta de nuevo más tarde.`, m);
-  }
-};
-
-handler.command = ['abuela'];
-handler.help = ['abuela <pregunta>'];
-handler.tags = ['ai'];
-handler.register = true;
-
-export default handler;
+export default handler
