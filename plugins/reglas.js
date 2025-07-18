@@ -1,6 +1,6 @@
-//código creador por +50248019799
-//para hinata-Bot
-//deje los creditos porfa 
+// código creador por +50248019799
+// para Hinata-Bot | Akeno Himejima versión
+// deja los créditos, gracias ~
 
 let handler = async (m, { conn }) => {
   if (!m.isGroup) throw '🚫 Este comando solo funciona en grupos.'
@@ -26,6 +26,7 @@ ${reglas}
 ┗━━━━━━━━━━━━━━━━┛
   `.trim()
 
+  // ✉️ Enviar texto primero
   await conn.sendMessage(m.chat, {
     text: texto,
     contextInfo: {
@@ -39,6 +40,13 @@ ${reglas}
       }
     }
   }, { quoted: m })
+
+  // 🔊 Enviar audio después
+  await conn.sendMessage(m.chat, {
+    audio: { url: 'https://o.uguu.se/aCeklHGB.opus' },
+    mimetype: 'audio/ogg; codecs=opus',
+    ptt: true
+  }, { quoted: m })
 }
 
 handler.help = ['reglas']
@@ -46,4 +54,3 @@ handler.tags = ['group']
 handler.command = /^reglas$/i
 
 export default handler
-
