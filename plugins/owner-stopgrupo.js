@@ -3,8 +3,8 @@ import fs from 'fs'
 
 const filePath = './src/JSON/grupos-bloqueados.json'
 
-let handler = async (m, { conn, isGroup, isAdmin, isBotAdmin }) => {
-  if (!isGroup) throw '🚫 Este comando solo puede usarse en grupos.'
+let handler = async (m, { conn, isAdmin }) => {
+  if (!m.isGroup) throw '🚫 Este comando solo puede usarse en grupos.'
 
   const sender = m.sender
   const isOwner = global.owner?.some(([num]) => sender.includes(num)) || sender === conn.user.jid
