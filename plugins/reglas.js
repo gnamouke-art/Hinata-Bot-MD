@@ -23,7 +23,7 @@ ${reglas}
 🌺 *Lee y cumple las reglas, o Akeno usará su rayo 😈⚡️*
 🕊️ *Si tienes dudas, invoca con:* #help
 🦋 *Canal:* ${global.canalLink || 'https://whatsapp.com/channel/0029Vaqe1Iv65yDAKBYr6z0A'}
-: ${dev}
+ ${dev}
 ┗━━━━━━━━━━━━━━━━┛
   `.trim()
 
