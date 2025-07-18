@@ -1,40 +1,43 @@
-let handler = async (m, { conn, text, name }) => {
-  // No responderse a sí mismo
-  if (m.sender === (conn.user && conn.user.jid)) return
+import fetch from 'node-fetch';
 
-  // Si no hay texto, no responde
-  if (!text) return
+let handler = async (m, { conn }) => {
+  // Ignora mensajes de sí mismo o que no sean texto
+  if (!m.text || m.isBaileys) return;
 
-  // Opcional: puedes hacer que responda a TODO texto o solo si contiene ciertas palabras
-  // Para responder a cualquier texto, elimina esta línea:
-  // const activadores = ['hola', 'akeno', 'bot', 'qué', 'cómo', 'cuándo']
-  // if (!activadores.some(palabra => text.toLowerCase().includes(palabra))) return
+  // Detecta frases clave para responder
+  const lower = m.text.toLowerCase();
+  const triggers = [
+    'hola', 'hey', 'buenas', 'quién eres', 'cómo estás', 'akeno', 'bot', 'himejima', 'estás ahí',
+    'dime algo', 'háblame', 'cuéntame algo', 'estás viva', 'me escuchas', 'aki'
+  ];
 
-  // Respuestas estilo Akeno Himejima, con toque tsundere y mencionando al usuario
-  const respuestas = [
-    `¿Qué quieres, ${name}? No es como si me importara, baka...`,
-    `Hmm, ${name}, no te pongas muy cómodo, solo te escucho por ahora.`,
-    `No es que quiera hablar contigo, pero... ¿qué quieres?`,
-    `Si vas a molestarme, al menos hazlo rápido, ${name}.`,
-    `Tsk... ¿acaso no tienes nada mejor que hacer? Pero dime, ¿qué pasa?`,
-    `No es que me guste, pero eres interesante, ${name}.`,
-    `¡¿Eh?! No malinterpretes las cosas, ${name}! Solo respondo porque debo.`,
-    `Pfff, ¡qué pesado eres, ${name}! Pero bueno, habla rápido.`,
-    `Si quieres mi atención, tendrás que esforzarte un poco más, ${name}.`,
-    `Solo porque me lo pides tú, ${name}, aquí estoy... no te acostumbres.`,
-    `¡Deja de mirarme así! No es que me gustes, baka...`,
-    `A veces me pregunto por qué te aguanto, pero supongo que tienes tu encanto, ${name}.`
-  ]
+  if (!triggers.some(palabra => lower.includes(palabra))) return;
 
-  // Elegir respuesta aleatoria
-  const respuesta = respuestas[Math.floor(Math.random() * respuestas.length)]
+  try {
+    // Obtiene el contenido desde GitHub
+    const url = 'https://raw.githubusercontent.com/TOKIO5025/text2/refs/heads/main/text-chatgpt';
+    const res = await fetch(url);
+    if (!res.ok) throw await res.text();
 
-  // Responder
-  await conn.reply(m.chat, `🖤 *Akeno Himejima-BOT* dice:\n${respuesta}`, m)
-}
+    const text = await res.text();
 
-handler.customPrefix = /.*/  // cualquier texto activa el handler
-handler.command = new RegExp() // sin prefijo
-handler.register = true
+    // Divide las líneas y filtra las vacías
+    const frases = text.split('\n').map(v => v.trim()).filter(v => v);
 
-export default handler
+    // Selecciona una frase al azar
+    const respuesta = frases[Math.floor(Math.random() * frases.length)];
+
+    // Responde
+    await conn.reply(m.chat, respuesta, m);
+  } catch (e) {
+    console.log('[ERROR chat-akeno]', e);
+    await conn.reply(m.chat, 'Lo siento… no puedo pensar en algo ahora mismo 🥺', m);
+  }
+};
+
+handler.customPrefix = /^(hola|hey|akeno|bot|himejima|estás|oye|quién|háblame|me escuchas|aki)/i;
+handler.command = new RegExp; // Sin comando, activa por texto
+handler.fail = null;
+handler.register = true;
+
+export default handler;
