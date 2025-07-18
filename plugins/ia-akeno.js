@@ -4,7 +4,7 @@ let handler = async (m, { text, conn }) => {
   if (!text) return conn.reply(m.chat, `💭 *¿Qué deseas preguntarme, darling?*\nEscribe algo como:\n*.akeno quién te creó*`, m)
 
   const name = conn.getName(m.sender)
-  const url = 'https://raw.githubusercontent.com/TOKIO5025/Hinata-chat/refs/heads/main/AKENO-HIMEJINA-TEST.text'
+  const url = 'https://raw.githubusercontent.com/TOKIO5025/Hinata-chat/refs/heads/main/akeno-himejina-BOT-test.text'
 
   try {
     let res = await fetch(url)
