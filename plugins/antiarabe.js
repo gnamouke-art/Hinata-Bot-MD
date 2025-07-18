@@ -1,3 +1,7 @@
+//código creado por +50248019799 
+//no modificar ya biene bien echo 
+//y el código es para Hinata Bot 
+//mi canal https://whatsapp.com/channel/0029Vaqe1Iv65yDAKBYr6z0A
 let handler = async (m, { conn, text, args, command, isAdmin, isBotAdmin, usedPrefix }) => {
   if (!isAdmin) throw '🛑 Este comando solo lo pueden usar los *admins* del grupo.'
   if (!isBotAdmin) throw '🤖 Necesito ser admin para activar esta función.'
