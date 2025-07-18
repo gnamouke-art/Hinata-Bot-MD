@@ -1,11 +1,24 @@
+// Silencia el bot en grupos bloqueados
 import fs from 'fs'
-let filePath = './src/JSON/grupos-bloqueados.json'
+
+const filePath = './src/JSON/grupos-bloqueados.json'
 
 export async function before(m, { conn }) {
   if (!m.isGroup) return
 
-  let data = JSON.parse(fs.readFileSync(filePath))
-  if (data.includes(m.chat) && m.sender !== '50248019799@s.whatsapp.net') {
-    return !1 // ignora todo
+  const sender = m.sender
+  const isSubBot = sender === conn.user.jid
+  const isOwner = global.owner?.some(([num]) => sender.includes(num))
+
+  let data = []
+  try {
+    data = JSON.parse(fs.readFileSync(filePath))
+  } catch {
+    data = []
+  }
+
+  if (data.includes(m.chat) && !isOwner && !isSubBot) {
+    // Ignora TODO excepto si eres owner o subbot
+    return !1
   }
 }
