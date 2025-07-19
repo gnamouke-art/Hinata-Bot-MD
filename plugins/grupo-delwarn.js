@@ -3,40 +3,45 @@ import { db } from '../lib/postgres.js';
 let handler = async (m, { conn, args, usedPrefix, command }) => {
   try {
     let who;
+
+    // Detectar al usuario a quien quitar la advertencia
     if (m.isGroup) {
-      who = m.mentionedJid?.[0] || (m.quoted ? m.quoted.sender : false);
+      who = m.mentionedJid?.[0] || m.quoted?.sender;
     } else {
       who = m.chat;
     }
 
     if (!who) {
-      return m.reply('❗ *¿A quién querés quitarle una advertencia?*\n\n📌 Etiquetá con @usuario o respondé a su mensaje.\nNo leo la mente todavía 🤓');
+      return m.reply(`🚫 *¿A quién le quito una advertencia?*\n\nUsa: *${usedPrefix + command} @usuario* o responde a un mensaje.`);
     }
 
-    const userResult = await db.query(`SELECT * FROM usuarios WHERE id = $1`, [who]);
-    if (!userResult.rows.length) {
-      return m.reply('🤷‍♂️ *Ese usuario ni siquiera existe en la base de datos.*');
+    // Verificar si el usuario está en la base de datos
+    const res = await db.query('SELECT warn FROM usuarios WHERE id = $1', [who]);
+    if (!res.rows.length) {
+      return m.reply(`⚠️ El usuario no tiene registro en la base de datos.`);
     }
 
-    let warn = userResult.rows[0].warn || 0;
+    let warn = Number(res.rows[0].warn || 0);
 
     if (warn > 0) {
-      await db.query(`UPDATE usuarios SET warn = warn - 1 WHERE id = $1`, [who]);
+      await db.query('UPDATE usuarios SET warn = warn - 1 WHERE id = $1', [who]);
       warn -= 1;
 
-      await conn.reply(m.chat, 
-`✅ *Advertencia eliminada con éxito*\n
-👤 Usuario: @${who.split`@`[0]}
-📉 Advertencias restantes: *${warn}*`, 
-      m, { mentions: [who] });
+      await conn.sendMessage(m.chat, {
+        text: `✅ *Advertencia eliminada:*\n\n👤 Usuario: @${who.split('@')[0]}\n⚠️ Advertencias restantes: *${warn}*`,
+        mentions: [who]
+      }, { quoted: m });
 
     } else {
-      await conn.reply(m.chat, `📢 @${who.split`@`[0]} no tiene ninguna advertencia activa.\nEstá limpio como recién bañado 🚿`, m, { mentions: [who] });
+      await conn.sendMessage(m.chat, {
+        text: `📢 @${who.split('@')[0]} no tiene advertencias activas.`,
+        mentions: [who]
+      }, { quoted: m });
     }
 
-  } catch (err) {
-    console.error(err);
-    m.reply('❌ *Ocurrió un error inesperado al procesar la advertencia.*\nIntenta de nuevo más tarde.');
+  } catch (e) {
+    console.error(e);
+    m.reply('❌ Ocurrió un error al intentar eliminar la advertencia.');
   }
 };
 
