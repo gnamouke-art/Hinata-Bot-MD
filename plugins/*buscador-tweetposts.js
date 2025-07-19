@@ -1,94 +1,73 @@
-// 🐦 Tweetposts - Akeno-BOT + MayBaileys
-// Hecho por Mira 💜 usando @soymaycol/maybailyes
+// By Jtxs 🐢
+// https://whatsapp.com/channel/0029Vanjyqb2f3ERifCpGT0W
 
 import axios from 'axios';
-const {
-  proto,
-  generateWAMessageFromContent,
-  generateWAMessageContent,
-} = (await import('@soymaycol/maybailyes')).default;
+const { proto, generateWAMessageFromContent, generateWAMessageContent } = (await import('@soymaycol/maybailyes')).default;
 
-let handler = async (m, { conn, text, usedPrefix, command }) => {
-  const emoji = '🐤';
+let handler = async (m, { conn, text }) => {
+if (!text) { return conn.reply(m.chat, `${emoji} Por favor, ingresa el texto de Lo que quieres buscar en Twitter.`, m); }
 
-  if (!text) return conn.reply(
-    m.chat,
-    `${emoji} *Por favor, dime qué deseas buscar en Twitter~*\n\n✧ Ejemplo:\n${usedPrefix + command} Elon Musk`,
-    m
-  );
+await message.react(rwait)
+conn.reply(message.chat, `${emoji} Descargando Su Video, espere un momento...`, message)
 
-  await m.react('⏳');
-  conn.reply(m.chat, '🌸 Akeno está buscando en Twitter... espera unos segundos~', m, {
-    contextInfo: {
-      externalAdReply: {
-        mediaType: 1,
-        title: '🐦 ʀᴇꜱᴜʟᴛᴀᴅᴏꜱ ᴅᴇ ᴛᴡɪᴛᴛᴇʀ',
-        body: 'Akeno-Himejima BOT',
-        previewType: 0,
-        thumbnail: avatar,
-        sourceUrl: redes
-      }
-    }
-  });
+async function createImage(url) {
+const { imageMessage } = await generateWAMessageContent({image: { url }}, { upload: conn.waUploadToServer });
+return imageMessage;
+}
+    
+try {
+let api = await axios.get(`https://apis-starlights-team.koyeb.app/starlight/Twitter-Posts`, {params: {text: encodeURIComponent(text)},
+headers: {'Content-Type': 'application/json'}});
 
-  try {
-    const res = await axios.get(`https://apis-may.onrender.com/api/twitter/search?text=${encodeURIComponent(text)}`);
-    const results = res.data.result || [];
+let json = api.data.result;
 
-    if (!results.length) throw new Error('No se encontraron resultados 😿');
+let resultsToDisplay = json.slice(0, 7);
 
-    const mini = [];
+let mini = [];
+for (let res of resultsToDisplay) {
 
-    for (let i = 0; i < Math.min(6, results.length); i++) {
-      const tweet = results[i];
-      const user = tweet.user || 'Desconocido';
-      const tweetText = tweet.post || 'Sin contenido';
-      const avatar = tweet.profile || null;
-      const link = tweet.user_link || 'https://twitter.com';
+let txt =  `👤 *User:* ${res.user}\n`
+    txt += `📅 *Publicacion:* ${res.post}\n`
+    txt += `☁️ *Perfil:* ${res.profile}\n`
+    txt += `🔗 *Link:* ${res.user_link}\n`
 
-      const caption = `👤 *Usuario:* ${user}\n📝 *Tweet:* ${tweetText}\n🔗 *Link:* ${link}`;
+mini.push({
+body: proto.Message.InteractiveMessage.Body.create({text: null}),
+footer: proto.Message.InteractiveMessage.Footer.create({text: null}),
+header: proto.Message.InteractiveMessage.Header.create({title: `${txt}`,
+hasMediaAttachment: true,
+imageMessage: await createImage(res.profile)
+}),
+nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.create({
+buttons: []
+})
+});
+}
 
-      const imageMsg = await generateWAMessageContent({ image: { url: avatar } }, { upload: conn.waUploadToServer });
+const msg = generateWAMessageFromContent(m.chat, {viewOnceMessage: {
+message: {
+messageContextInfo: {deviceListMetadata: {},deviceListMetadataVersion: 4},
+interactiveMessage: proto.Message.InteractiveMessage.create({
+body: proto.Message.InteractiveMessage.Body.create({text: `${emoji} Resultado de : ${text}\n⪛✰ Tweetposts - Busquedas ✰⪜`}),
+footer: proto.Message.InteractiveMessage.Footer.create({text: null}),
+header: proto.Message.InteractiveMessage.Header.create({hasMediaAttachment: false}),
+carouselMessage: proto.Message.InteractiveMessage.CarouselMessage.create({cards: mini})
+})
+}
+}
+}, {});
 
-      mini.push({
-        body: proto.Message.InteractiveMessage.Body.create({ text: null }),
-        footer: proto.Message.InteractiveMessage.Footer.create({ text: "🌐 Twitter Search by Akeno" }),
-        header: proto.Message.InteractiveMessage.Header.create({
-          title: caption,
-          hasMediaAttachment: true,
-          imageMessage: imageMsg.imageMessage
-        }),
-        nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.create({ buttons: [] })
-      });
-    }
+await conn.relayMessage(m.chat, msg.message, { messageId: msg.key.id });
 
-    const msg = generateWAMessageFromContent(m.chat, {
-      viewOnceMessage: {
-        message: {
-          messageContextInfo: { deviceListMetadata: {}, deviceListMetadataVersion: 4 },
-          interactiveMessage: proto.Message.InteractiveMessage.create({
-            body: proto.Message.InteractiveMessage.Body.create({ text: `✨ *Resultados para:* ${text}` }),
-            footer: proto.Message.InteractiveMessage.Footer.create({ text: "🐦 Powered by @soymaycol/maybailyes" }),
-            header: proto.Message.InteractiveMessage.Header.create({ hasMediaAttachment: false }),
-            carouselMessage: proto.Message.InteractiveMessage.CarouselMessage.create({ cards: mini })
-          })
-        }
-      }
-    }, { quoted: m });
+} catch (error) {
+console.error(error)
+}}
 
-    await conn.relayMessage(m.chat, msg.message, { messageId: msg.key.id });
-    await m.react('✅');
-  } catch (e) {
-    await m.react('❌');
-    console.error(e);
-    return conn.reply(m.chat, `⚠️ *Akeno no pudo encontrar los tweets...*\n💬 ${e.message}`, m);
-  }
-};
-
-handler.help = ['tweetposts <texto>'];
-handler.tags = ['buscador'];
-handler.command = ['tweetposts', 'twsearch'];
-handler.register = true;
-handler.group = false;
+handler.help = ['tweetposts']
+handler.tags = ['buscador']
+handler.command = ['tweetposts']
+handler.register = true
+handler.coin = 1
 
 export default handler;
+  
