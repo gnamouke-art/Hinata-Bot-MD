@@ -95,6 +95,7 @@ let handler = async (m, { conn }) => {
 ┃ ✧ .gitclone *clona un repositorio de alguien*
 ┃ ✧ .imagen descarga cualguier imagen
 ┃ ✧ .imagen2 descarga imagenes sin reglas
+┃ ✧ .apk descarga una apk 
 ╚═══════════════════════════╝
 
 ╔═══🎰≪ 𝙀𝘾𝙊𝙉𝙊𝙈𝙄𝘼 ≫🎰═══╗
