@@ -1,58 +1,59 @@
 import uploadFile, { quax, RESTfulAPI, catbox, uguu, filechan, pixeldrain, gofile, krakenfiles, telegraph } from '../lib/uploadFile.js';
 import uploadImage from '../lib/uploadImage.js';
+import fetch from 'node-fetch';
 
-const handlerQuax = async (m, { conn, args, usedPrefix, command }) => {
-  try {
-    const q = m.quoted ? m.quoted : m;
-    const mime = (q?.msg?.mimetype || q?.mimetype || '')?.toLowerCase() || '';
+const handler = async (m, { args, usedPrefix, command }) => {
+const q = m.quoted ? m.quoted : m;
+const mime = (q.msg || q).mimetype || '';
 
-    if (!mime) {
-      // Si no hay media, responde con instrucción simple
-      return await m.reply(`⚠️ Por favor responde a una imagen, video o sticker con el comando *${usedPrefix + command}* para subir el archivo.`);
-    }
+if (!mime) throw `*\`⚠️ ¿𝐘 𝐋𝐀 𝐈𝐌𝐀𝐆𝐄𝐍/𝐕𝐈𝐃𝐄𝐎?\`*
 
-    if (!q.download) {
-      return await m.reply('⚠️ No pude descargar el archivo. Por favor responde a un archivo válido.');
-    }
+*• Ejemplo de Uso de ${usedPrefix + command}:*
 
-    const media = await q.download();
+— Responde a una imagen, sticker o video corto con el comando:
 
-    const option = (args[0] || '').toLowerCase();
-    const services = { quax, restfulapi: RESTfulAPI, catbox, uguu, filechan, pixeldrain, gofile, krakenfiles, telegraph };
+➔ *${usedPrefix + command}*
 
-    if (option && services[option]) {
-      const link = await services[option](media);
-      return await m.reply(link);
-    }
+Subirá automáticamente el archivo a servidores como *qu.ax*, *catbox*, *gofile*, etc.
 
-    const isTele = /image\/(png|jpe?g|gif)|video\/mp4/.test(mime);
-    const link = await (isTele ? uploadImage : uploadFile)(media);
+🌐 *\`¿Quieres elegir un servidor específico?\`*
+> Puedes usar:
 
-    return await m.reply(link);
+➔ *${usedPrefix + command} quax _(Recomendado)_*
+➔ *${usedPrefix + command} catbox _(recomendado)_*
+➔ *${usedPrefix + command} uguu*  
+➔ *${usedPrefix + command} pixeldrain*  
+➔ *${usedPrefix + command} restfulapi*  
+➔ *${usedPrefix + command} filechan*  
+➔ *${usedPrefix + command} gofile*  
+➔ *${usedPrefix + command} krakenfiles*  
+➔ *${usedPrefix + command} telegraph*
 
-  } catch (e) {
-    console.error(e);
-    return await m.reply(
-      '❌ Error al subir el archivo. Intenta con otra opción:\n' +
-      Object.keys({
-        quax, restfulapi: RESTfulAPI, catbox, uguu, filechan, pixeldrain, gofile, krakenfiles, telegraph
-      }).map(v => `➔ ${usedPrefix}${command} ${v}`).join('\n')
-    );
-  }
-};
+📝 *\`Notas:\`*
+- *El archivo debe ser una imagen, sticker o video corto.*  
+- *Enlaces de qu.ax y catbox no expiran.*
+- *Algunos servicios como file.io expiran en 24 horas.*
+`.trim();
 
-handlerQuax.help = ['quax <opcional servicio>'];
-handlerQuax.tags = ['convertidor'];
-handlerQuax.command = /^(quax|x)$/i;
-handlerQuax.register = true;
+const media = await q.download();
+const option = (args[0] || '').toLowerCase();
+const services = { quax, restfulapi: RESTfulAPI, catbox, uguu, filechan, pixeldrain, gofile, krakenfiles, telegraph };
+try {
+if (option && services[option]) {
+const link = await services[option](media);
+return m.reply(link);
+}
 
-// Comando simple para probar si el bot responde
-const handlerPing = async (m, { conn }) => {
-  await m.reply('Pong! 🏓');
-};
-handlerPing.help = ['ping'];
-handlerPing.tags = ['info'];
-handlerPing.command = /^ping$/i;
-handlerPing.register = true;
-
-export { handlerQuax, handlerPing };
+const isTele = /image\/(png|jpe?g|gif)|video\/mp4/.test(mime);
+const link = await (isTele ? uploadImage : uploadFile)(media);
+return m.reply(link);
+} catch (e) {
+console.error(e);
+throw '❌ Error al subir el archivo. Intenta con otra opción:\n' + Object.keys(services).map(v => `➔ ${usedPrefix}${command} ${v}`).join('\n');
+}};
+handler.help = ['tourl <opcional servicio>'];
+handler.tags = ['convertidor'];
+handler.command = /^(upload|tourl)$/i;
+handler.register = true;
+export default handler;
+  
