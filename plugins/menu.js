@@ -80,7 +80,7 @@ let handler = async (m, { conn }) => {
 
 ╔═══🔄≪ 𝘿𝙀𝙎𝘾𝘼𝙍𝙂𝘼𝙎 ≫🔄═══╗
 ┃ 📥 Descarga tu contenido favorito
-┃ ✧ .playaudio ➩ (audio) 🎶
+┃ ✧ .instagram  ➩ (descarga tu video de instagram)  🎬
 ┃ ✧ .ytmp4 ➩ (video) 🎬
 ┃ ✧ .tt ➩ .tiktok ➩ TikTok 🎞️
 ┃ ✧ .tiktokmp3 — Audio de TikTok 🎵
