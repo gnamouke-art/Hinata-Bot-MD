@@ -3,7 +3,7 @@ let handler = async (m, { conn }) => {
 
   await conn.sendMessage(m.chat, {
     video: { url },
-    caption: '🎭 MONEY HEIST MD',
+    caption: '🎭 MONEY HEIST MD Xd',
     mimetype: 'video/mp4',
     fileName: 'moneyheist.mp4',
     gifPlayback: false,
