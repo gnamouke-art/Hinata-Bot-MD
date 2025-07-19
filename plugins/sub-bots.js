@@ -21,7 +21,7 @@ let drm1 = "CkphZGlib3QsIEhlY2hv"
 let drm2 = "IHBvciBAQWlkZW5fTm90TG9naWM"
 
 // 🟣 Diseño nuevo para QR
-let rtx = `*🌸 HINATA - SISTEMA DE SUB-BOTS 🌸*\n\n*📱 Conecta tu sub-bot ahora mismo:*\n\n*1️⃣ Abre WhatsApp Web desde otro teléfono o PC*\n*2️⃣ Escanea el código QR a continuación*\n*3️⃣ ¡Listo! Serás parte del sistema Hinata ✨\n\n*⏳ Este código expirará en 45 segundos*\n\n⚠️ *El mal uso de este sistema es tu responsabilidad. No nos hacemos responsables si tu número se reporta o bloquea.*`
+let rtx = `*🌸 HINATA-Bot- SISTEMA DE SUB-BOTS 🌸*\n\n*📱 Conecta tu sub-bot ahora mismo:*\n\n*1️⃣ Abre WhatsApp Web desde otro teléfono o PC*\n*2️⃣ Escanea el código QR a continuación*\n*3️⃣ ¡Listo! Serás parte del sistema Hinata ✨\n\n*⏳ Este código expirará en 45 segundos*\n\n⚠️ *El mal uso de este sistema es tu responsabilidad. No nos hacemos responsables si tu número se reporta o bloquea.*`
 
 // 🔵 Código para emparejar por teléfono (sin créditos)
 let rtx2 = `*🟦 CONEXIÓN AL SISTEMA HINATA - SUB BOT 🟦*\n\n*📲 Si deseas emparejar vía teléfono, sigue estos pasos:*\n\n*1️⃣ Ve a los tres puntos (⋮) en WhatsApp*\n*2️⃣ Toca "Dispositivos vinculados"*\n*3️⃣ Selecciona "Vincular con código de teléfono"*\n*4️⃣ Pega el código que te enviamos aquí 💻*\n\n⚠️ *Recuerda cumplir con los términos y condiciones. Este sistema es para uso personal y controlado.*`
