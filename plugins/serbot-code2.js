@@ -1,4 +1,7 @@
 // plugins/code2.js
+// Creado por TOKIO5025 para Hinata-Bot
+// Fue desarrollado por ${de}
+
 import fs from 'fs'
 import path from 'path'
 
@@ -13,32 +16,47 @@ let handler = async (m, { conn }) => {
   let parte2 = gen(numeros, 4)
   let code = `${parte1}-${parte2}`
 
+  // Guardar código en archivo
   let db = {}
   if (fs.existsSync(codesPath)) db = JSON.parse(fs.readFileSync(codesPath))
   db[code] = { owner: m.sender, created: Date.now() }
   fs.writeFileSync(codesPath, JSON.stringify(db, null, 2))
 
-  let texto = `
-╭─────〔 🌸 HINATA SUB-BOT 🌸 〕─────╮
-│ ✅ Código generado con éxito.
+  // 📩 Mensaje 1: instrucciones
+  let textoInstrucciones = `
+╭─────〔 🌸 HINATA SUB-BOT - CODE 🌸 〕─────╮
+│ ✅ Tu código ha sido generado con éxito.
 │ 
-│ 📲 Pasos para emparejar:
-│ 1. Abre WhatsApp y ve a los tres puntos (⋮)
-│ 2. Toca "Dispositivos vinculados"
-│ 3. Pulsa en "Vincular con código de teléfono"
-│ 4. Ingresa este código:
+│ 📲 *Pasos para vincular desde otro número:*
+│ 
+│ 1. Abre WhatsApp y pulsa los tres puntos (⋮)
+│ 2. Ve a *Dispositivos vinculados*
+│ 3. Presiona *Vincular con código de teléfono*
+│ 4. Ingresa el código que te enviaré ahora
 │
-│ 🔐 *${code}*
+│ Luego escribe el comando:
+│ *.vincular <código>*
 │ 
-│ ⚠️ No compartas este código.
-│ Se vincula como sub-bot con reconexión activa.
+│ ⚠️ Este código solo puede usarse una vez.
 │ 
-│ Creado por TOKIO5025 para Hinata-Bot
-╰───────────────────────────────╯
+│ 💮 Desarrollado por TOKIO5025
+╰────────────────────────────────────╯
 `
 
-  conn.reply(m.chat, texto, m)
+  // 📩 Mensaje 2: solo el código en limpio
+  let soloCodigo = `🔐 *Código de vinculación:*\n\`\`\`${code}\`\`\``
+
+  // Enviar los dos mensajes por privado
+  await conn.sendMessage(m.sender, { text: textoInstrucciones }, { quoted: m })
+  await conn.sendMessage(m.sender, { text: soloCodigo }, { quoted: m })
+
+  // Confirmar en el grupo si es necesario
+  if (m.chat !== m.sender) {
+    conn.reply(m.chat, '✅ Código enviado a tu privado.', m)
+  }
 }
 
 handler.command = /^code2$/i
+handler.tags = ['jadibot']
+handler.help = ['code2']
 export default handler
