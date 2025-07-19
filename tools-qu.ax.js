@@ -1,47 +1,20 @@
 import uploadFile, { quax, RESTfulAPI, catbox, uguu, filechan, pixeldrain, gofile, krakenfiles, telegraph } from '../lib/uploadFile.js';
 import uploadImage from '../lib/uploadImage.js';
 
-const handler = async (m, { conn, args, usedPrefix, command }) => {
+const handlerQuax = async (m, { conn, args, usedPrefix, command }) => {
   try {
     const q = m.quoted ? m.quoted : m;
     const mime = (q?.msg?.mimetype || q?.mimetype || '')?.toLowerCase() || '';
 
     if (!mime) {
-      return await m.reply(
-        `*\`⚠️ ¿𝐘 𝐋𝐀 𝐈𝐌𝐀𝐆𝐄𝐍/𝐕𝐈𝐃𝐄𝐎?\`*
-
-*• Ejemplo de Uso de ${usedPrefix + command}:*
-
-— Responde a una imagen, sticker o video corto con el comando:
-
-➔ *${usedPrefix + command}*
-
-Subirá automáticamente el archivo a servidores como *qu.ax*, *catbox*, *gofile*, etc.
-
-🌐 *\`¿Quieres elegir un servidor específico?\`*
-> Puedes usar:
-
-➔ *${usedPrefix + command} quax _(Recomendado)_*
-➔ *${usedPrefix + command} catbox _(recomendado)_*
-➔ *${usedPrefix + command} uguu*  
-➔ *${usedPrefix + command} pixeldrain*  
-➔ *${usedPrefix + command} restfulapi*  
-➔ *${usedPrefix + command} filechan*  
-➔ *${usedPrefix + command} gofile*  
-➔ *${usedPrefix + command} krakenfiles*  
-➔ *${usedPrefix + command} telegraph*
-
-📝 *\`Notas:\`*
-- *El archivo debe ser una imagen, sticker o video corto.*  
-- *Enlaces de qu.ax y catbox no expiran.*
-- *Algunos servicios como file.io expiran en 24 horas.*`.trim()
-      );
+      // Si no hay media, responde con instrucción simple
+      return await m.reply(`⚠️ Por favor responde a una imagen, video o sticker con el comando *${usedPrefix + command}* para subir el archivo.`);
     }
 
-    // Descarga el archivo, verifica que exista q.download
     if (!q.download) {
-      return await m.reply('⚠️ No pude descargar el archivo. Por favor, responde a un archivo válido.');
+      return await m.reply('⚠️ No pude descargar el archivo. Por favor responde a un archivo válido.');
     }
+
     const media = await q.download();
 
     const option = (args[0] || '').toLowerCase();
@@ -52,7 +25,6 @@ Subirá automáticamente el archivo a servidores como *qu.ax*, *catbox*, *gofile
       return await m.reply(link);
     }
 
-    // Decide si subir como imagen o archivo
     const isTele = /image\/(png|jpe?g|gif)|video\/mp4/.test(mime);
     const link = await (isTele ? uploadImage : uploadFile)(media);
 
@@ -69,9 +41,18 @@ Subirá automáticamente el archivo a servidores como *qu.ax*, *catbox*, *gofile
   }
 };
 
-handler.help = ['quax <opcional servicio>'];
-handler.tags = ['convertidor'];
-handler.command = /^(quax|x)$/i;
-handler.register = true;
+handlerQuax.help = ['quax <opcional servicio>'];
+handlerQuax.tags = ['convertidor'];
+handlerQuax.command = /^(quax|x)$/i;
+handlerQuax.register = true;
 
-export default handler;
+// Comando simple para probar si el bot responde
+const handlerPing = async (m, { conn }) => {
+  await m.reply('Pong! 🏓');
+};
+handlerPing.help = ['ping'];
+handlerPing.tags = ['info'];
+handlerPing.command = /^ping$/i;
+handlerPing.register = true;
+
+export { handlerQuax, handlerPing };
