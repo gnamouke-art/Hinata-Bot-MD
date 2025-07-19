@@ -90,6 +90,7 @@ let handler = async (m, { conn }) => {
 ┃ ✧ .tourl3 .upload
 ┃ ✧ .gitclone clona el repo de alguien 
 ┃ ✧ .pinterest ✨ — Imagen random
+┃ ✧ .pinvid (descarga  videos de Pinterest) 
 ╚═══════════════════════════╝
 
 ╔═══🎰≪ 𝙀𝘾𝙊𝙉𝙊𝙈𝙄𝘼 ≫🎰═══╗
