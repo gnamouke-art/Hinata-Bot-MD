@@ -91,7 +91,10 @@ let handler = async (m, { conn }) => {
 ┃ ✧ .gitclone clona el repo de alguien 
 ┃ ✧ .pinterest ✨ — Imagen random
 ┃ ✧ .pinvid (descarga  videos de Pinterest) 
- ✧ .spotify (descarga musicas de Spotify 💫 
+┃ ✧ .spotify (descarga musicas de Spotify 💫
+┃ ✧ .gitclone *clona un repositorio de alguien*
+┃ ✧ .imagen descarga cualguier imagen
+┃ ✧ .imagen2 descarga imagenes sin reglas
 ╚═══════════════════════════╝
 
 ╔═══🎰≪ 𝙀𝘾𝙊𝙉𝙊𝙈𝙄𝘼 ≫🎰═══╗
