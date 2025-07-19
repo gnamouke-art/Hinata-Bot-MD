@@ -1,4 +1,4 @@
-const { useMultiFileAuthState, DisconnectReason, makeCacheableSignalKeyStore, fetchLatestBaileysVersion } = (await import(global.baileys));
+const { useMultiFileAuthState, DisconnectReason, makeCacheableSignalKeyStore, fetchLatestBaileysVersion} = (await import(global.baileys));
 import qrcode from "qrcode"
 import NodeCache from "node-cache"
 import fs from "fs"
@@ -12,56 +12,50 @@ const { child, spawn, exec } = await import('child_process')
 const { CONNECTING } = ws
 import { makeWASocket } from '../lib/simple.js'
 import { fileURLToPath } from 'url'
-
 let crm1 = "Y2QgcGx1Z2lucy"
 let crm2 = "A7IG1kNXN1b"
 let crm3 = "SBpbmZvLWRvbmFyLmpz"
 let crm4 = "IF9hdXRvcmVzcG9uZGVyLmpzIGluZm8tYm90Lmpz"
 let drm1 = "CkphZGlib3QsIEhlY2hv"
 let drm2 = "IHBvciBAQWlkZW5fTm90TG9naWM"
+let rtx = `*🔰 hinata-𝗖𝗢𝗡𝗘𝗫𝗜𝗢𝗡 𝗦𝗨𝗕-𝗕𝗢𝗧  🔰*\nㅤㅤㅤㅤ*Ser sub bot*\n\n*Con otro telefono que tengas o en la PC escanea este QR para convertirte en un sub bot*\n\n*1. Haga clic en los tres puntos en la esquina superior derecha*\n*2. Toca WhatsApp Web*\n*3. Escanee este codigo QR*\n*Este código QR expira en 45 segundos!*\n\n> *⚠️ No nos hacemos responsable del mal uso que se le pueda dar o si el numero se manda a soporte.. ustedes tienen el deber se seguir al pie de la letra los terminos y condiciones*`
+let rtx2 = `🟢 HINATA-𝙎𝙐𝘽-𝘽𝙊𝙏 𝘾𝙊𝙉𝙀𝙓𝙄𝙊𝙉  🟢
 
-// 🟣 Diseño nuevo para QR
-let rtx = `*🌸 HINATA-Bot- SISTEMA DE SUB-BOTS 🌸*\n\n*📱 Conecta tu sub-bot ahora mismo:*\n\n*1️⃣ Abre WhatsApp Web desde otro teléfono o PC*\n*2️⃣ Escanea el código QR a continuación*\n*3️⃣ ¡Listo! Serás parte del sistema Hinata ✨\n\n*⏳ Este código expirará en 45 segundos*\n\n⚠️ *El mal uso de este sistema es tu responsabilidad. No nos hacemos responsables si tu número se reporta o bloquea.*`
+*1️⃣ Diríjase en los tres puntos en la esquina superior derecha*🟢
+*2️⃣ Ir a la opción Dispositivos vinculados*🟢
+*3️⃣ da click en vincular con codigo de teléfono*🟢
+*4️⃣ pega el codigo a continuación*🟢
 
-// 🔵 Código para emparejar por teléfono (sin créditos)
-let rtx2 = `*🟦 CONEXIÓN AL SISTEMA HINATA - SUB BOT 🟦*\n\n*📲 Si deseas emparejar vía teléfono, sigue estos pasos:*\n\n*1️⃣ Ve a los tres puntos (⋮) en WhatsApp*\n*2️⃣ Toca "Dispositivos vinculados"*\n*3️⃣ Selecciona "Vincular con código de teléfono"*\n*4️⃣ Pega el código que te enviamos aquí 💻*\n\n⚠️ *Recuerda cumplir con los términos y condiciones. Este sistema es para uso personal y controlado.*`
+> *⚠️ No nos hacemos responsable del mal uso que se le pueda dar o si el numero se manda a soporte.. ustedes tienen el deber se seguir al pie de la letra los terminos y condiciones y privacidad (escribe eso y te los dará ⚡)*`
 
-
-⚡
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const gataJBOptions = {}
 const retryMap = new Map(); 
 const maxAttempts = 5;
-
 if (global.conns instanceof Array) console.log()
 else global.conns = []
-
 let handler = async (m, { conn, args, usedPrefix, command, isOwner }) => {
-  //if (!global.db.data.settings[conn.user.jid].jadibotmd) return m.reply(`${lenguajeGB['smsSoloOwnerJB']()}`)
-  if (m.fromMe || conn.user.jid === m.sender) return
-  //if (conn.user.jid !== global.conn.user.jid) return conn.reply(m.chat, `${lenguajeGB['smsJBPrincipal']()} wa.me/${global.conn.user.jid.split\`@\`[0]}&text=${usedPrefix + command}`, m) 
-
-  let who = m.mentionedJid && m.mentionedJid[0] ? m.mentionedJid[0] : m.fromMe ? conn.user.jid : m.sender
-  let id = `${who.split`@`[0]}`
-  let pathGataJadiBot = path.join("./hinata-SubBots/", id)
-
-  if (!fs.existsSync(pathGataJadiBot)) {
-    fs.mkdirSync(pathGataJadiBot, { recursive: true })
-  }
-
-  gataJBOptions.pathGataJadiBot = pathGataJadiBot
-  gataJBOptions.m = m
-  gataJBOptions.conn = conn
-  gataJBOptions.args = args
-  gataJBOptions.usedPrefix = usedPrefix
-  gataJBOptions.command = command
-  gataJBOptions.fromCommand = true
-
-  gataJadiBot(gataJBOptions)
+//if (!global.db.data.settings[conn.user.jid].jadibotmd) return m.reply(`${lenguajeGB['smsSoloOwnerJB']()}`)
+if (m.fromMe || conn.user.jid === m.sender) return
+//if (conn.user.jid !== global.conn.user.jid) return conn.reply(m.chat, `${lenguajeGB['smsJBPrincipal']()} wa.me/${global.conn.user.jid.split`@`[0]}&text=${usedPrefix + command}`, m) 
+let who = m.mentionedJid && m.mentionedJid[0] ? m.mentionedJid[0] : m.fromMe ? conn.user.jid : m.sender
+let id = `${who.split`@`[0]}` 
+let pathGataJadiBot = path.join("./hinata-SubBots/", id)
+if (!fs.existsSync(pathGataJadiBot)){
+fs.mkdirSync(pathGataJadiBot, { recursive: true })
+}
+gataJBOptions.pathGataJadiBot = pathGataJadiBot
+gataJBOptions.m = m
+gataJBOptions.conn = conn
+gataJBOptions.args = args
+gataJBOptions.usedPrefix = usedPrefix
+gataJBOptions.command = command
+gataJBOptions.fromCommand = true
+gataJadiBot(gataJBOptions)
 } 
-
 handler.help = ['serbot', 'jadibot', 'code'];
+handler.tags = ['jadibot'];
 handler.command = /^(jadibot|serbot|rentbot|code)/i
 export default handler 
 
