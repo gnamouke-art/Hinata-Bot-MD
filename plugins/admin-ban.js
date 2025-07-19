@@ -1,38 +1,76 @@
-let handler = async (m, { conn }) => {
-  const despedida = `🧹 *Adiós rats, ya no te queremos aquí.* 😤👋`
-  const audioURL = 'https://n.uguu.se/CfuenqXz.mp3'
-
-  if (!m.mentionedJid[0] && !m.quoted) {
-    let texto = `👀 ¿A quién saco volando? Etiqueta con *@usuario* o responde a un mensaje, burro sin mecate 🐴`
-    return m.reply(texto, m.chat, { mentions: conn.parseMention(texto) })
+const handler = async (m, { conn, text, participants, isAdmin, isBotAdmin }) => {
+  if (!m.isGroup) {
+    return m.reply('👠 *¡Error, amor!* Este comando solo funciona en grupos~\n\nEn privado no puedo mostrar mi lado malvado 😈💋');
   }
 
-  let user = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted.sender
+  const groupMetadata = await conn.groupMetadata(m.chat);
+  const groupAdmins = groupMetadata.participants
+    .filter(p => p.admin === 'admin' || p.admin === 'superadmin')
+    .map(p => p.id);
 
-  await conn.sendMessage(m.chat, {
-    text: despedida,
-    mentions: [user]
-  }, { quoted: m })
+  if (!isAdmin) {
+    return m.reply('💅 *¡Aún no eres digno!* Solo los *Admins sensuales* pueden invocar mi lado oscuro 💄✨\n\n¿O acaso quieres que te castigue por intentar usar mis poderes sin permiso? 😈🔞');
+  }
 
-  await conn.sendMessage(m.chat, {
-    audio: { url: audioURL },
-    mimetype: 'audio/mp4',
-    ptt: true
-  }, { quoted: m })
+  if (!isBotAdmin) {
+    return m.reply('👑 *¡Reina sin corona!* Necesito ser *admin* para desplegar mi venganza divina 💔\n\nHazme reina y verás cómo los traidores *vuelan* 😏🔥');
+  }
 
-  await delay(2000)
+  // Obtener el usuario objetivo
+  let target;
+  if (m.mentionedJid && m.mentionedJid.length > 0) {
+    target = m.mentionedJid[0];
+  } else if (m.quoted && m.quoted.sender) {
+    target = m.quoted.sender;
+  } else if (text) {
+    const number = text.replace(/[^0-9]/g, '');
+    if (number.length < 5) return m.reply('🚫 *Ese número está más chueco que tus intenciones, amor~*');
+    target = number + '@s.whatsapp.net';
+  } else {
+    return m.reply('📌 *Mención o respuesta, nene~*\n\nNecesito saber a *quién voy a eliminar con estilo*, no soy adivina 💋');
+  }
 
-  await conn.groupParticipantsUpdate(m.chat, [user], 'remove')
-}
+  // Validar si el objetivo está en el grupo
+  const isMember = participants.find(p => p.id === target);
+  if (!isMember) {
+    return m.reply('🌀 *No puedo castigar a quien no existe, cielito~*\nEse usuario no está en el grupo, y yo no hago magia negra con fantasmas 😜✨');
+  }
 
-handler.help = ['kick *@usuario*']
-handler.tags = ['group']
-handler.command = ['kick', 'expulsar']
-handler.admin = true
-handler.group = true
-handler.botAdmin = true
-handler.register = true
+  // Verificar que no sea admin
+  if (groupAdmins.includes(target)) {
+    return m.reply('🚫 *Alto ahí, gatito~*\nEse usuario es un admin, y está bajo mi protección... por ahora 😈💖');
+  }
 
-export default handler
+  try {
+    // Texto dramático de Hinata malvada
+    await conn.sendMessage(m.chat, {
+      text: `💄 *"Hinata ha despertado su lado oscuro..."* 👠\n\n👋 @${target.split('@')[0]}...\n💬 *Tus pecados no serán perdonados.*\n\n🧹✨ ¡Que se largue esta rata!`,
+      mentions: [target]
+    }, { quoted: m });
 
-const delay = ms => new Promise(res => setTimeout(res, ms))
+    // Audio malvado (puedes reemplazarlo con uno más "Hinata" si quieres)
+    await conn.sendMessage(m.chat, {
+      audio: { url: 'https://n.uguu.se/CfuenqXz.mp3' },
+      mimetype: 'audio/mp4',
+      ptt: true
+    }, { quoted: m });
+
+    await delay(2000);
+
+    await conn.groupParticipantsUpdate(m.chat, [target], 'remove');
+  } catch (err) {
+    console.error(err);
+    return m.reply(`⚠️ *Oops... algo salió mal expulsando a la víctima:*\n${err.message}`);
+  }
+};
+
+handler.command = handler.help = ['kick', 'ban', 'expulsar', 'sacar', 'desaparecer', 'fuera', 'v'];
+
+handler.group = true;
+handler.botAdmin = true;
+handler.admin = true;
+handler.register = true;
+
+export default handler;
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
