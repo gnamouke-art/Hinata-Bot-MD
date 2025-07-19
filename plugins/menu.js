@@ -1,165 +1,157 @@
 import fs from 'fs';
 
 let handler = async (m, { conn }) => {
-    try {
-        const botName = 'Hinata-Bot';
-        const currency = '¥';
-        const videoUrl = 'https://files.catbox.moe/n35h6q.mp4';
-        const vs = '1.0.0';
-        const dev = 'NeoTokyo Beats';
-        const copy = '🔧 Sistema personalizado';
+  try {
+    const botName = 'Hinata-Bot';
+    const currency = '¥';
+    const videoUrl = 'https://files.catbox.moe/n35h6q.mp4';
+    const version = '1.0.0';
+    const developer = 'NeoTokyo Beats';
+    const copy = '🔧 Sistema personalizado';
 
-        const menuMessage = `
-╔══🎀══════════════════╗
-🌟  𝐁𝐢𝐞𝐧𝐯𝐞𝐧𝐢𝐝𝐨 𝐚 ${botName}      
-╚══🎀══════════════════╝
-🧠 ᴅᴇsᴀʀʀᴏʟʟᴀᴅᴏ ᴘᴏʀ: 👨🏻‍💻 ${dev}
-📦 𝙑𝙚𝙧𝙨𝙞ó𝙣: ${vs}
-💻 Hinata-Bot - 𝙀𝙡 𝙢𝙚𝙟𝙤𝙧 𝘽𝙤𝙩 𝙙𝙚𝙡 𝙢𝙪𝙣𝙙𝙤
+    // Canal
+    const canalID = '120363341523880410';
+    const newsletterName = 'hinataBot. channel ✨️';
 
-┏━━༺💬༻━━┓
-┃ ¡Hola! Soy *${botName}* 🩵
-┃ Aquí tienes la lista de comandos
-┗━━༺💬༻━━┛
+    const menuMessage = `
+╭─────────────────────────────╮
+│       ✨ ${botName} ✨        │
+│    Versión: ${version}             │
+│    Desarrollado por: ${developer} │
+│    Moneda: ${currency}               │
+╰─────────────────────────────╯
 
-💴 𝙈𝙤𝙣𝙚𝙙𝙖 𝙖𝙘𝙩𝙪𝙖𝙡: ${currency}
-📢 Más información y novedades:
-🔗 https://whatsapp.com/channel/0029Vaqe1Iv65yDAKBYr6z0A
+📌 𝐂𝐑𝐄𝐀𝐃𝐎𝐑 𝐘 𝐀𝐃𝐌𝐈𝐍
+• .cambiarnombreBot — Cambiar nombre
+• .setbanner — Establecer banner
+• .setmoneda — Cambiar moneda
+• .viewbanner — Ver banner
+• .deletebanner — Eliminar banner
+• .resetpreferences — Reiniciar preferencias
 
-╔═══❖🌟❖═══╗
-┃  👑 𝙎𝙊𝙇𝙊 𝘾𝙍𝙀𝘼𝘿𝙊𝙍 
-╚═══❖🌟❖═══╝
-✿ .cambiarnombreBot ✏️  — Cambia el nombre del bot  
-✿ .setbanner 🖼️ — Establece un banner
-✿ .setmoneda 🪙 — Cambia la moneda global
-✿ .viewbanner 📄 — Ver banner actual
-✿ .deletebanner 🗑️ — Eliminar banner
-✿ .resetpreferences ♻️ — Reiniciar preferencias
+─────────────────────────────
 
-╔═══❖🌙❖═══╗
-┃  🗂️ 𝙈𝙀𝙉𝙐 𝘿𝙀𝙎𝘾𝙐𝙀𝙉𝙏𝙊
-╚═══❖🌙❖═══╝
-☘ .menu2  — Comandos especiales
+🎲 𝐉𝐔𝐄𝐆𝐎𝐒 / 𝐑𝐏𝐆
+• .mina — Minería mágica
 
-╔═══❖ 𝙟𝙪𝙚𝙜𝙤𝙨/𝙧𝙥𝙜 ❖═══╗
-┃ ⚒️ .mina - Minería mágica
-╚═══❖ 🌑 ❖═══╝
+─────────────────────────────
 
-╔═══😼≪ IA/La ≫🤖═══╗
-┃ 🤖 .gimini habla con gimini
-┃ 🤖 .ia. habla⚡ con la ia 😼
-┃ 🤖 .akeno habla con akeno himejima
-┃ 🤖 .demo preguntale a demo cualquier pregunta 
-┃ 🤖 .dalle genra una imagen con dalle
-╚════════════════════════════╝
+🤖 𝐈𝐀 / 𝐂𝐇𝐀𝐓𝐁𝐎𝐓𝐒
+• .gimini — Habla con Gimini
+• .ia — Conversa con IA
+• .akeno — Chat Akeno Himejima
+• .demo — Pregunta a Demo
+• .dalle — Genera imagen con DALL·E
 
-╔═══🌙≪ 𝘼𝘿𝙈𝙄𝙉𝙄𝙎𝙏𝙍𝘼𝘾𝙄𝙊𝙉 ≫🌙═══╗
-┃ 🛡️ Comandos exclusivos para admins
-┃ ✦ .kick 🚫 — Expulsar usuario
-┃ ✦ .getplugin 🔌 — Obtener plugin
-┃ ✦ .getpack 📦 — Descargar pack
-┃ ✦ .store 🏪 — Ver tienda
-┃ ✦ .status 🖥️ — Estado actual
-┃ ✦ .ping 📍 — Latencia del bot
-┃ ✦ .
-╚════════════════════════════╝
+─────────────────────────────
 
-╔═══🎲≪ 𝙍𝘼𝙉𝘿𝙊𝙈 ≫🎲═══╗
-┃ 🎲 Comandos aleatorios y waifus
-┃ ❖ .rw 🌟 — Random waifu
-┃ ❖ .winfo 🧸 — Info de waifu
-┃ ❖ .rollwaifu 🧸 — Tirar waifu
-┃ ❖ .claim 💡 — Reclamar waifu
-┃ ❖ .harem 💗 — Ver tu harem
-┃ ❖ .addrw 📝 — Añadir waifu
-┃ ❖ .alya ➩ .bot 🤖 — Charla con Alya
-┃ ❖ .kaori ❤️ — Momento musical 🎻
-┃ ❖ .waifu 👄 — Imagen de waifu
-┃ ❖ .fakengl ⚡ — Nombre fake en inglés
-╚═══════════════════════════╝
+🛡️ 𝐀𝐃𝐌𝐈𝐍
+• .kick — Expulsar usuario
+• .getplugin — Obtener plugin
+• .getpack — Descargar pack
+• .store — Ver tienda
+• .status — Estado actual
+• .ping — Latencia del bot
 
-╔═══🔄≪ 𝘿𝙀𝙎𝘾𝘼𝙍𝙂𝘼𝙎 ≫🔄═══╗
-┃ 📥 Descarga tu contenido favorito
-┃ ✧ .instagram  ➩ (descarga tu video de instagram)  🎬
-┃ ✧ .ytmp4 ➩ (video) 🎬
-┃ ✧ .tt ➩ .tiktok ➩ TikTok 🎞️
-┃ ✧ .tiktokmp3 — Audio de TikTok 🎵
-┃ ✧ .sp ➩ .spotify ➩ Spotify 🎧
-┃ ✧ .tksearch 
-┃ ✧ .tourl .tourl2
-┃ ✧ .tourl3 .upload
-┃ ✧ .gitclone clona el repo de alguien 
-┃ ✧ .pinterest ✨ — Imagen random
-┃ ✧ .pinvid (descarga  videos de Pinterest) 
-┃ ✧ .spotify (descarga musicas de Spotify 💫
-┃ ✧ .gitclone *clona un repositorio de alguien*
-┃ ✧ .imagen descarga cualguier imagen
-┃ ✧ .imagen2 descarga imagenes sin reglas
-┃ ✧ .apk descarga una apk 
-╚═══════════════════════════╝
+─────────────────────────────
 
-╔═══🎰≪ 𝙀𝘾𝙊𝙉𝙊𝙈𝙄𝘼 ≫🎰═══╗
-┃ 💰 Gana, roba y gestiona tu dinero
-┃ ❖ .work 👷🏻‍♂️ — Trabaja y gana ¥
-┃ ❖ .slut 😈 — Riesgo... o recompensa
-┃ ❖ .robar 👨🏻‍💻 — Roba a otro jugador
-┃ ❖ .deposit (¥) 🏦 — Deposita al banco
-┃ ❖ .retirar (¥) 🏧 — Retira del banco
-┃ ❖ .transferir (¥) @user 📨 — Envía dinero
-┃ ❖ .perfil 🆔 — Ver tu economía
-╚════════════════════════════╝
+🎲 𝐑𝐀𝐍𝐃𝐎𝐌 𝐘 𝐖𝐀𝐈𝐅𝐔𝐒
+• .rw — Waifu random
+• .winfo — Info waifu
+• .rollwaifu — Tirar waifu
+• .claim — Reclamar waifu
+• .harem — Ver harem
+• .addrw — Añadir waifu
+• .alya — Charla con Alya
+• .kaori — Momento musical
+• .waifu — Imagen waifu
+• .fakengl — Nombre fake inglés
 
-╔═══⛩️≪ 𝙍𝙀𝘼𝘾𝘾𝙄𝙊𝙉𝙀𝙎 𝘼𝙉𝙄𝙈𝙀 ≫⛩️═══╗
-┃ 🎌 Expresa emociones al estilo anime
-┃ ♡ .abrazar 🫂 — Abrazo kawaii~
-┃ ♡ .aburrido 🙇🏻‍♂️ — Me aburro...
-┃ ♡ .bañarse 🛀🏻 — Hora del baño~
-┃ ♡ .bleh 🤸🏻‍♂️ — ¡Bleh~!
-┃ ♡ .comer 🍙 — Comiendo onigiri 🍙
-┃ ♡ .dance 💃🕺 — ¡Hora de bailar!
-┃ ♡ .enojado 🤦🏻‍♂️ — Estoy molesto
-┃ ♡ .feliz 😊 — Sonríe más, senpai~
-┃ ♡ .kiss 💋 — Envío un beso 💋
-┃ ♡ .love ❤️ — ¡Te amo!
-┃ ♡ .matar 🔪 — Hora de acabar contigo...
-┃ ♡ .morder 🦷 — Ñam~
-┃ ♡ .nalguear 🍑 — ¡Nalgadita!
-┃ ♡ .punch 👊 — Golpe directo~
-┃ ♡ .saludar 👋 — ¡Yaa~ hola!
-┃ ♡ .bofetada 🖐️ — ¡Toma esto!
-┃ ♡ .dormir 🛌🏻 — Zzz... durmiendo~
-┃ ♡ .smoke 🚬 — Fumando con estilo
-┃ ♡ .paja 🍆 — 🔞 [reacción subida de tono]
-╚════════════════════════════╝
+─────────────────────────────
 
-╔═══💥≪ 𝙏𝙊𝙊𝙇𝙎 ≫⛩️═══╗
-┃ 🧰 Cosas divertidas y cool
-┃ ✦ .ver — Reacciona a contenido "ver una vez" 👁️‍🗨️
-┃ ✦ .get — Descarga estados de WhatsApp 📥
-┃ ✦ .subirver — Sube como "ver una vez" 🔁
-┃ ✦ .rpf — Roba foto de perfil
-┃ ✦ .rpf2 — Roba perfil y nombre
-╚═════════════════════════╝
+📥 𝐃𝐄𝐒𝐂𝐀𝐑𝐆𝐀𝐒
+• .instagram — Descargar video Instagram
+• .ytmp4 — Descargar video YouTube
+• .tt / .tiktok — Descargar TikTok
+• .tiktokmp3 — Audio TikTok
+• .sp / .spotify — Descargar Spotify
+• .tksearch — Buscar TikTok
+• .tourl — Subir URL
+• .gitclone — Clonar repositorios
+• .pinterest — Imagen random
+• .pinvid — Descargar video Pinterest
+• .imagen — Descargar imagen
+• .apk — Descargar APK
 
-╔════ ≪ ✨ ≫ ════╗
-│ ✨ 𝙎𝙊𝙇𝙊 𝙊𝙒𝙉𝙀𝙍 ✨ 
-│❀ .update ⭕
-│❀ .dsowner ➩ .purgar 🗑️
-│❀ .join 💎
-╚════ ≪ ✨ ≫ ════╝
+─────────────────────────────
 
-> ${copy} Hecho con mucho amor por ${dev}
+💰 𝐄𝐂𝐎𝐍𝐎𝐌𝐈𝐀
+• .work — Trabajar y ganar ¥
+• .slut — Riesgo o recompensa
+• .robar — Robar a otro jugador
+• .deposit — Depositar banco
+• .retirar — Retirar banco
+• .transferir — Transferir dinero
+• .perfil — Ver economía
+
+─────────────────────────────
+
+⛩️ 𝐀𝐍𝐈𝐌𝐄 𝐑𝐄𝐀𝐂𝐂𝐈𝐎𝐍𝐄𝐒
+• .abrazar — Abrazo kawaii
+• .aburrido — Me aburro
+• .bañarse — Hora del baño
+• .bleh — ¡Bleh!
+• .comer — Comiendo onigiri
+• .dance — Hora de bailar
+• .enojado — Molesto
+• .feliz — Sonríe más
+• .kiss — Envío un beso
+• .love — ¡Te amo!
+• .matar — Hora de acabar
+• .morder — Ñam~
+• .nalguear — Nalgadita
+• .punch — Golpe directo
+• .saludar — ¡Hola!
+• .bofetada — ¡Toma esto!
+• .dormir — Zzz...
+• .smoke — Fumando con estilo
+• .paja — 🔞
+
+─────────────────────────────
+
+🧰 𝐓𝐎𝐎𝐋𝐒
+• .ver — Reacciona contenido “ver una vez”
+• .get — Descargar estados
+• .subirver — Sube “ver una vez”
+• .rpf — Robar foto perfil
+• .rpf2 — Robar perfil y nombre
+
+─────────────────────────────
+
+✨ 𝐎𝐖𝐍𝐄𝐑
+• .update
+• .dsowner
+• .purgar
+• .join
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📢 𝐂𝐚𝐧𝐚𝐥 𝐨𝐟𝐢𝐜𝐢𝐚𝐥:
+${newsletterName}
+🆔 𝐈𝐃: ${canalID}@newsletter
+🔗 https://chat.whatsapp.com/channel/${canalID}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+> ${copy} — Hecho con ❤️ por ${developer}
 `;
 
-        await conn.sendMessage(m.chat, {
-            video: { url: videoUrl },
-            caption: menuMessage,
-            mentions: [m.sender]
-            // No uses gifPlayback si quieres que suene el video
-        });
-    } catch (error) {
-        conn.reply(m.chat, `❌ Error al cargar el menú: ${error.message}`, m);
-    }
+    await conn.sendMessage(m.chat, {
+      video: { url: videoUrl },
+      caption: menuMessage,
+      mentions: [m.sender],
+    });
+  } catch (error) {
+    conn.reply(m.chat, `❌ Error al cargar el menú: ${error.message}`, m);
+  }
 };
 
 handler.help = ['menu'];
