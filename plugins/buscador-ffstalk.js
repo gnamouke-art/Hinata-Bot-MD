@@ -8,7 +8,7 @@ let handler = async (m, { conn, text }) => {
     const json = res.data;
 
     if (!json || !json.status || !json.data || !json.data.account) {
-      return conn.reply(m.chat, `😿 No encontré resultados para ese ID... ¿Estás segur@ que existe?`, m);
+  return conn.reply(m.chat, `😿 Parece que ese ID no existe o no está en la región LATAM.\n\n👉 Si tu cuenta es de *EE.UU. / Norteamérica*, esta función no podrá encontrarla porque usa servidores de LATAM.`, m);
     }
 
     let { account, pet_info = {}, guild = {}, ketua_guild = {} } = json.data;
