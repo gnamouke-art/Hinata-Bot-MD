@@ -10,16 +10,21 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
     const res = await googleImage(text);
     const image = await res.getRandom();
     const caption = `_🔎 Resultado para: "${text}"_\n\n✨ ¡Espero que te encante! 💖`;
-    await conn.sendFile(m.chat, image, 'resultado.jpg', caption, m);
+
+    const buttons = [
+      { buttonId: `${usedPrefix}${command} ${text}`, buttonText: { displayText: '➡️ Siguiente imagen' }, type: 1 }
+    ];
+
+    await conn.sendButton(m.chat, caption, 'Powered by 💖', image, buttons, m);
   } catch (e) {
     console.log(e);
     m.reply('❌ Uy, algo salió mal buscando tu imagen... inténtalo otra vez, porfa. 🥺');
   }
 };
 
-handler.help = ['gimage <texto>', 'imagen <texto>'];
+handler.help = ['imagen2 <texto>', 'image2 <texto>', 'gimage2 <texto>'];
 handler.tags = ['buscadores'];
-handler.command = /^(gimage|imagen3|imagen2)$/i;
+handler.command = /^(imagen2|image2|gimage2)$/i;
 handler.register = true;
 handler.limit = 1;
 
