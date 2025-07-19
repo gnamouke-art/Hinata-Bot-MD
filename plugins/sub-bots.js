@@ -26,6 +26,8 @@ let rtx = `*🌸 HINATA-Bot- SISTEMA DE SUB-BOTS 🌸*\n\n*📱 Conecta tu sub-b
 // 🔵 Código para emparejar por teléfono (sin créditos)
 let rtx2 = `*🟦 CONEXIÓN AL SISTEMA HINATA - SUB BOT 🟦*\n\n*📲 Si deseas emparejar vía teléfono, sigue estos pasos:*\n\n*1️⃣ Ve a los tres puntos (⋮) en WhatsApp*\n*2️⃣ Toca "Dispositivos vinculados"*\n*3️⃣ Selecciona "Vincular con código de teléfono"*\n*4️⃣ Pega el código que te enviamos aquí 💻*\n\n⚠️ *Recuerda cumplir con los términos y condiciones. Este sistema es para uso personal y controlado.*`
 
+
+⚡
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const gataJBOptions = {}
