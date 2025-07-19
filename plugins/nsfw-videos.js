@@ -1,44 +1,48 @@
-import axios from 'axios';
-import puppeteer from 'puppeteer';
+// comando creado por TOKIO5025 para Hinata-Bot
+import { exec } from 'child_process';
+import fs from 'fs';
+import path from 'path';
 
-const handler = async (m, { conn, text, usedPrefix, command }) => {
-  const emoji = '🔞';
-
-  if (!text || !text.includes('hentai.tv')) {
-    return m.reply(`${emoji} Por favor proporciona un enlace válido de hentai.tv\nEjemplo:\n> ${usedPrefix + command} https://hentai.tv/hentai/sisters-the-last-day-of-summer-chinatsu-episode-3/`);
+const handler = async (m, { conn, args, usedPrefix, command }) => {
+  let url = args[0];
+  if (!url || !url.includes('http')) {
+    return m.reply(`🔞 Ingresa el link del video porno que deseas descargar.\n\n*Ejemplo:* ${usedPrefix + command} https://www.pornhub.com/view_video.php?viewkey=xxxxx`);
   }
 
-  let videoUrl;
-  try {
-    const browser = await puppeteer.launch({ args: ['--no-sandbox'] });
-    const page = await browser.newPage();
-    await page.goto(text, { waitUntil: 'networkidle0' });
+  const output = `video-${Date.now()}.mp4`;
 
-    videoUrl = await page.$eval('video source', el => el.src).catch(() => null);
-    await browser.close();
-  } catch (e) {
-    console.error(e);
-    return m.reply('😿 Hubo un error cargando la página para extraer el video.');
-  }
+  m.reply(`🌶️ Descargando el video caliente...\nPor favor, espera un momento... 🔥`);
 
-  if (!videoUrl) {
-    return m.reply('💔 Ooops... No encontré el video en esa página. ¿Seguro que es un episodio con reproductor?');
-  }
+  exec(`yt-dlp -f best -o "${output}" "${url}"`, async (err, stdout, stderr) => {
+    if (err) {
+      console.error('❌ Error al descargar:', err);
+      return m.reply('💔 Ooops... No pude descargar el video. Asegúrate que el link sea válido.');
+    }
 
-  try {
-    await conn.sendMessage(m.chat, {
-      video: { url: videoUrl },
-      caption: `🎬 Aquí tienes el video:\n🔗 ${videoUrl}`
-    }, { quoted: m });
-  } catch (e) {
-    console.error(e);
-    m.reply('😿 El video es muy grande o no pudo enviarse. Intenta bajarlo desde el enlace directamente.');
-  }
+    if (!fs.existsSync(output)) {
+      return m.reply('❌ Descarga fallida. No se generó el archivo.');
+    }
+
+    let stats = fs.statSync(output);
+    let fileSize = stats.size;
+
+    if (fileSize > 50 * 1024 * 1024) { // WhatsApp limita archivos a 50MB
+      const fileUrl = path.resolve(output);
+      m.reply(`⚠️ El archivo es muy grande (${(fileSize / 1024 / 1024).toFixed(2)} MB).\nNo puedo enviarlo por WhatsApp, pero puedes subirlo manualmente desde tu host: *${fileUrl}*`);
+    } else {
+      await conn.sendFile(m.chat, fs.readFileSync(output), output, '🔞 Aquí tienes tu video porno. ¡Disfrútalo! 💦', m);
+    }
+
+    fs.unlinkSync(output); // eliminar archivo descargado
+  });
 };
 
-handler.command = ['hentaivideo', 'descargarhentai'];
+handler.command = ['xxx', 'porn'];
+handler.help = ['xxx <link>', 'porn <link>'];
 handler.tags = ['nsfw'];
-handler.help = ['hentaivideo <link>'];
-handler.limit = true;
+handler.premium = false;
+handler.limit = 1;
+handler.register = true;
+handler.private = false;
 
 export default handler;
