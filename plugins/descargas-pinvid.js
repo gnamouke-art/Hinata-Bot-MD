@@ -34,7 +34,7 @@ handler.help = ['pinvid *<link>*']
 handler.tags = ['descargas']
 handler.command = ['pinvideo', 'pinvid']
 handler.premium = false
-handler.group = true
+handler.group = false
 handler.register = true
 handler.coin = 2
 
