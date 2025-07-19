@@ -1,48 +1,37 @@
-// comando creado por TOKIO5025 para Hinata-Bot
-import { exec } from 'child_process';
-import fs from 'fs';
-import path from 'path';
+import { spawn } from 'child_process'
+import fs from 'fs'
+import path from 'path'
 
-const handler = async (m, { conn, args, usedPrefix, command }) => {
-  let url = args[0];
-  if (!url || !url.includes('http')) {
-    return m.reply(`🔞 Ingresa el link del video porno que deseas descargar.\n\n*Ejemplo:* ${usedPrefix + command} https://www.pornhub.com/view_video.php?viewkey=xxxxx`);
+let handler = async (m, { conn, args }) => {
+  let url = args[0]
+  if (!url || !url.includes('view_video.php?viewkey=')) {
+    return m.reply('💔 Ooops... El link no es válido. Asegúrate que sea un video directo de Pornhub.\n\nEjemplo:\n.porndownload https://www.pornhub.com/view_video.php?viewkey=ph5a12e5b7c77e5')
   }
 
-  const output = `video-${Date.now()}.mp4`;
+  let fileName = `phvideo-${Date.now()}.mp4`
+  let filePath = path.join('/tmp', fileName)
 
-  m.reply(`🌶️ Descargando el video caliente...\nPor favor, espera un momento... 🔥`);
+  m.reply('⏳ Descargando el video desde Pornhub, espera un poco...')
 
-  exec(`yt-dlp -f best -o "${output}" "${url}"`, async (err, stdout, stderr) => {
-    if (err) {
-      console.error('❌ Error al descargar:', err);
-      return m.reply('💔 Ooops... No pude descargar el video. Asegúrate que el link sea válido.');
-    }
+  const ytdlp = spawn('yt-dlp', ['-o', filePath, url])
 
-    if (!fs.existsSync(output)) {
-      return m.reply('❌ Descarga fallida. No se generó el archivo.');
-    }
+  ytdlp.stderr.on('data', data => {
+    console.log('yt-dlp error:', data.toString())
+  })
 
-    let stats = fs.statSync(output);
-    let fileSize = stats.size;
-
-    if (fileSize > 50 * 1024 * 1024) { // WhatsApp limita archivos a 50MB
-      const fileUrl = path.resolve(output);
-      m.reply(`⚠️ El archivo es muy grande (${(fileSize / 1024 / 1024).toFixed(2)} MB).\nNo puedo enviarlo por WhatsApp, pero puedes subirlo manualmente desde tu host: *${fileUrl}*`);
+  ytdlp.on('close', async code => {
+    if (code === 0 && fs.existsSync(filePath)) {
+      await conn.sendFile(m.chat, filePath, fileName, `✅ Video descargado desde:\n${url}`, m)
+      fs.unlinkSync(filePath)
     } else {
-      await conn.sendFile(m.chat, fs.readFileSync(output), output, '🔞 Aquí tienes tu video porno. ¡Disfrútalo! 💦', m);
+      m.reply('💔 Ooops... No pude descargar el video. Asegúrate que el link sea válido.')
     }
+  })
+}
 
-    fs.unlinkSync(output); // eliminar archivo descargado
-  });
-};
+handler.command = ['porndownload']
+handler.tags = ['nsfw']
+handler.help = ['porndownload <link>']
+handler.premium = true
 
-handler.command = ['xxx', 'porn'];
-handler.help = ['xxx <link>', 'porn <link>'];
-handler.tags = ['nsfw'];
-handler.premium = false;
-handler.limit = 1;
-handler.register = true;
-handler.private = false;
-
-export default handler;
+export default handler
