@@ -45,6 +45,14 @@ let handler = async (m, { conn }) => {
 ┃ ⚒️ .mina - Minería mágica
 ╚═══❖ 🌑 ❖═══╝
 
+╔═══😼≪ IA/La ≫🤖═══╗
+┃ 🤖 .gimini habla con gimini
+┃ 🤖 .ia. habla⚡ con la ia 😼
+┃ 🤖 .akeno habla con akeno himejima
+┃ 🤖 .demo preguntale a demo cualquier pregunta 
+┃ 🤖 .dalle genra una imagen con dalle
+╚════════════════════════════╝
+
 ╔═══🌙≪ 𝘼𝘿𝙈𝙄𝙉𝙄𝙎𝙏𝙍𝘼𝘾𝙄𝙊𝙉 ≫🌙═══╗
 ┃ 🛡️ Comandos exclusivos para admins
 ┃ ✦ .kick 🚫 — Expulsar usuario
@@ -53,8 +61,7 @@ let handler = async (m, { conn }) => {
 ┃ ✦ .store 🏪 — Ver tienda
 ┃ ✦ .status 🖥️ — Estado actual
 ┃ ✦ .ping 📍 — Latencia del bot
-┃ ✦ .gemini 🔍 — Buscar con Gemini
-┃ ✦ .pinterest ✨ — Imagen random
+┃ ✦ .
 ╚════════════════════════════╝
 
 ╔═══🎲≪ 𝙍𝘼𝙉𝘿𝙊𝙈 ≫🎲═══╗
@@ -81,6 +88,8 @@ let handler = async (m, { conn }) => {
 ┃ ✧ .tksearch 
 ┃ ✧ .tourl .tourl2
 ┃ ✧ .tourl3 .upload
+┃ ✧ .gitclone clona el repo de alguien 
+┃ ✧ .pinterest ✨ — Imagen random
 ╚═══════════════════════════╝
 
 ╔═══🎰≪ 𝙀𝘾𝙊𝙉𝙊𝙈𝙄𝘼 ≫🎰═══╗
