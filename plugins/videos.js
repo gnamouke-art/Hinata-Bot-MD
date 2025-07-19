@@ -1,22 +1,18 @@
 import ytdl from 'ytdl-core';
-import fetch from 'node-fetch';
+import ytSearch from 'youtube-search-api';
 
 let handler = async (m, { conn, args, usedPrefix, command }) => {
-  if (!args[0]) throw `📽️ ¿Qué video deseas buscar?\n\nUso correcto:\n*${usedPrefix + command} Messi*`;
-
-  const query = args.join(" ");
-  const ytSearchUrl = `https://youtube.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&key=TU_API_KEY&type=video&maxResults=1`;
+  if (!args[0]) throw `📽️ ¿Qué video deseas buscar?\n\nUso:\n${usedPrefix + command} Messi`;
 
   try {
-    const res = await fetch(ytSearchUrl);
-    const data = await res.json();
-    
-    if (!data.items.length) throw '❌ No se encontraron videos.';
+    const query = args.join(' ');
+    const results = await ytSearch.GetListByKeyword(query, false, 1);
 
-    const video = data.items[0];
-    const videoId = video.id.videoId;
-    const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
-    const title = video.snippet.title;
+    if (!results.items.length) throw '❌ No se encontró ningún video.';
+
+    const video = results.items[0];
+    const videoUrl = `https://www.youtube.com/watch?v=${video.id}`;
+    const title = video.title;
 
     let info = await ytdl.getInfo(videoUrl);
     let format = ytdl.chooseFormat(info.formats, { quality: '18' }); // MP4 360p
@@ -24,6 +20,7 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
     const message = `
 🎬 *Título:* ${title}
 📎 *Enlace:* ${videoUrl}
+⏱️ *Duración:* ${video.length.simpleText || 'N/A'}
 📥 *Formato:* mp4 (360p)
 
 Responde con:
@@ -34,7 +31,7 @@ Responde con:
 
     conn.sendMessage(m.chat, { text: message }, { quoted: m });
 
-    // Opcional: puedes guardar el estado del usuario para que al responder con 1, 2 o 3, se actúe según la opción
+    // Aquí podrías guardar el estado del usuario para procesar su siguiente mensaje (1, 2, 3)
   } catch (err) {
     console.error(err);
     throw '⚠️ Ocurrió un error al buscar o procesar el video.';
