@@ -1,40 +1,47 @@
 import ytdl from 'ytdl-core';
-import ytSearch from 'youtube-search-api';
+import ytsr from 'ytsr';
 
 let handler = async (m, { conn, args, usedPrefix, command }) => {
-  if (!args[0]) throw `📽️ ¿Qué video deseas buscar?\n\nUso:\n${usedPrefix + command} Messi`;
+  if (!args[0]) throw `🎬 ¿Qué video deseas buscar?\n\nEjemplo:\n${usedPrefix + command} messi`;
 
   try {
-    const query = args.join(' ');
-    const results = await ytSearch.GetListByKeyword(query, false, 1);
+    let query = args.join(" ");
+    let searchResults = await ytsr(query, { limit: 1 });
 
-    if (!results.items.length) throw '❌ No se encontró ningún video.';
+    if (!searchResults.items.length) throw '❌ No se encontró ningún video.';
 
-    const video = results.items[0];
-    const videoUrl = `https://www.youtube.com/watch?v=${video.id}`;
-    const title = video.title;
+    let video = searchResults.items[0];
 
-    let info = await ytdl.getInfo(videoUrl);
+    if (video.type !== 'video') throw '❌ Resultado inválido.';
+
+    let title = video.title;
+    let url = video.url;
+    let duration = video.duration || 'N/A';
+    let thumbnail = video.thumbnail;
+
+    let info = await ytdl.getInfo(url);
     let format = ytdl.chooseFormat(info.formats, { quality: '18' }); // MP4 360p
 
-    const message = `
+    let msg = `
 🎬 *Título:* ${title}
-📎 *Enlace:* ${videoUrl}
-⏱️ *Duración:* ${video.length.simpleText || 'N/A'}
-📥 *Formato:* mp4 (360p)
+⏱️ *Duración:* ${duration}
+🔗 *URL:* ${url}
 
-Responde con:
+📥 *Opciones de descarga:*
 1️⃣ mp4 directo
-2️⃣ Como documento
+2️⃣ Documento
 3️⃣ Video redondo
+
+_Responde con 1, 2 o 3 para elegir formato._
     `.trim();
 
-    conn.sendMessage(m.chat, { text: message }, { quoted: m });
+    conn.sendMessage(m.chat, { image: { url: thumbnail }, caption: msg }, { quoted: m });
 
-    // Aquí podrías guardar el estado del usuario para procesar su siguiente mensaje (1, 2, 3)
-  } catch (err) {
-    console.error(err);
-    throw '⚠️ Ocurrió un error al buscar o procesar el video.';
+    // Aquí podrías almacenar el estado para responder al 1, 2, 3
+
+  } catch (e) {
+    console.log(e);
+    throw '⚠️ Error al buscar o procesar el video.';
   }
 };
 
