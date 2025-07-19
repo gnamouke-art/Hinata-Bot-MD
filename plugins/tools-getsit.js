@@ -3,41 +3,69 @@ import fs from 'fs';
 import fetch from 'node-fetch';
 import cheerio from 'cheerio';
 
-let handler = async (m, { conn, args, text, usedPrefix, command }) => {
+let handler = async (m, { conn, text, usedPrefix, command }) => {
   if (!text) {
-    // Si no hay argumento, responde con ejemplo
-    return m.reply(`â„¹ï¸ Usa el comando correctamente:\n\nEjemplo:\n${usedPrefix + command} https://files.catbox.moe/n35h6q.mp4`);
+    return m.reply(`📌 Usa el comando correctamente:\n\nEjemplo:\n${usedPrefix + command} https://files.catbox.moe/n35h6q.mp4`);
   }
 
   try {
-    const url = text;
+    const url = text.trim();
 
+    // Primero hacemos HEAD para saber el tipo de contenido
     const res = await axios.head(url);
-    const tipo = res.headers['content-type'];
+    const contentType = res.headers['content-type'] || '';
 
-    if (tipo.includes('video') || url.endsWith('.mp4')) {
-      m.reply('â¬‡ï¸ Descargando el video...');
+    // Carpeta temporal
+    const tmpDir = './tmp';
+    if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir, { recursive: true });
 
-      let nombre = `video_${Date.now()}.mp4`;
-      const buffer = await (await fetch(url)).buffer();
+    // Función para descargar archivo
+    async function downloadFile(url, path) {
+      const response = await fetch(url);
+      const buffer = await response.buffer();
+      fs.writeFileSync(path, buffer);
+    }
 
-      // Crea carpeta temporal si no existe
-      fs.mkdirSync('./tmp', { recursive: true });
-      fs.writeFileSync(`./tmp/${nombre}`, buffer);
+    if (contentType.startsWith('video/')) {
+      // Video
+      await m.reply('🎥 Descargando video...');
 
-      await conn.sendFile(m.chat, `./tmp/${nombre}`, nombre, `ðŸŽ¬ Video descargado con Ã©xito\nðŸ”¥ Reacciones: ðŸ‘ðŸ’¯ðŸ˜Ž`, m);
-      fs.unlinkSync(`./tmp/${nombre}`);
+      const extension = contentType.split('/')[1].split(';')[0] || 'mp4';
+      const filename = `video_${Date.now()}.${extension}`;
+      const filepath = `${tmpDir}/${filename}`;
+
+      await downloadFile(url, filepath);
+
+      await conn.sendFile(m.chat, filepath, filename, '🎬 Video descargado con éxito 🎉', m);
+      fs.unlinkSync(filepath);
+
+    } else if (contentType.startsWith('image/')) {
+      // Imagen
+      await m.reply('🖼️ Descargando imagen...');
+
+      const extension = contentType.split('/')[1].split(';')[0] || 'jpg';
+      const filename = `image_${Date.now()}.${extension}`;
+      const filepath = `${tmpDir}/${filename}`;
+
+      await downloadFile(url, filepath);
+
+      await conn.sendFile(m.chat, filepath, filename, '🖼️ Imagen descargada con éxito 🎉', m);
+      fs.unlinkSync(filepath);
+
     } else {
+      // No es imagen ni video, tratamos como página web
       const { data } = await axios.get(url);
       const $ = cheerio.load(data);
-      const titulo = $('title').text() || 'Sin tÃ­tulo';
-      const textoPlano = $('body').text().slice(0, 500);
 
-      await m.reply(`ðŸŒ TÃ­tulo del sitio: ${titulo}\n\nðŸ“ Fragmento:\n${textoPlano.trim()}...\n\nðŸ‘ðŸ”¥`);
+      const titulo = $('title').text() || 'Sin título';
+      // Sacamos texto del body y limpiamos espacios, cortamos a 500 caracteres
+      let textoPlano = $('body').text().replace(/\s+/g, ' ').trim().slice(0, 500);
+
+      await m.reply(`🌐 Título del sitio: ${titulo}\n\n📄 Fragmento:\n${textoPlano}...\n\n👍🔥`);
     }
   } catch (e) {
     console.error(e);
-    m.reply('âŒ Error al procesar el link. Â¿EstÃ¡ bien escrito?');
+    m.reply('❌ Error al procesar el link. ¿Está bien escrito o disponible?');
   }
 };
 
