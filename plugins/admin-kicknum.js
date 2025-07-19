@@ -21,7 +21,7 @@ const handler = async (m, { conn, args, groupMetadata, participants, usedPrefix,
       }, { quoted: m });
 
       await conn.sendMessage(m.chat, {
-        audio: { url: 'https://d.uguu.se/rgTLuPzu.opus' },
+        audio: { url: 'https://files.catbox.moe/rrnxeh.mp4' },
         mimetype: 'audio/ogg; codecs=opus',
         ptt: true
       }, { quoted: m });
