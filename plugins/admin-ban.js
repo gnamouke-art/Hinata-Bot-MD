@@ -1,6 +1,7 @@
 const handler = async (m, { conn, text, participants, isAdmin, isBotAdmin }) => {
+  // Verificar si es un grupo
   if (!m.isGroup) {
-    return m.reply('👠 *¡Error, amor!* Este comando solo funciona en grupos~\n\nEn privado no puedo mostrar mi lado malvado 😈💋');
+    return m.reply('❌ Este comando solo puede usarse en grupos, nene~ En privado no puedo hacer travesuras como esta 😏✨');
   }
 
   const groupMetadata = await conn.groupMetadata(m.chat);
@@ -8,12 +9,14 @@ const handler = async (m, { conn, text, participants, isAdmin, isBotAdmin }) => 
     .filter(p => p.admin === 'admin' || p.admin === 'superadmin')
     .map(p => p.id);
 
+  // Verificar si el usuario que usó el comando es admin
   if (!isAdmin) {
-    return m.reply('💅 *¡Aún no eres digno!* Solo los *Admins sensuales* pueden invocar mi lado oscuro 💄✨\n\n¿O acaso quieres que te castigue por intentar usar mis poderes sin permiso? 😈🔞');
+    return m.reply('💄 Lo siento, nene... este comando es exclusivo para los Admins. ¿O acaso querías que te castigue por travieso?~ 😈💔');
   }
 
+  // Verificar si el bot es admin
   if (!isBotAdmin) {
-    return m.reply('👑 *¡Reina sin corona!* Necesito ser *admin* para desplegar mi venganza divina 💔\n\nHazme reina y verás cómo los traidores *vuelan* 😏🔥');
+    return m.reply('❌ Awww~ No tan rápido, amor. Necesito ser Admin para usar este comando. Las travesuras prohibidas solo son para los que tienen autoridad~ 😈💋');
   }
 
   // Obtener el usuario objetivo
@@ -24,53 +27,37 @@ const handler = async (m, { conn, text, participants, isAdmin, isBotAdmin }) => 
     target = m.quoted.sender;
   } else if (text) {
     const number = text.replace(/[^0-9]/g, '');
-    if (number.length < 5) return m.reply('🚫 *Ese número está más chueco que tus intenciones, amor~*');
+    if (number.length < 5) return m.reply('⚠️ Ese número no parece válido, amor.');
     target = number + '@s.whatsapp.net';
   } else {
-    return m.reply('📌 *Mención o respuesta, nene~*\n\nNecesito saber a *quién voy a eliminar con estilo*, no soy adivina 💋');
+    return m.reply('❌ Mmm~ necesito que menciones o respondas a alguien, amor. No puedo lanzar mi castigo al aire~ 💄🔥');
   }
 
   // Validar si el objetivo está en el grupo
   const isMember = participants.find(p => p.id === target);
   if (!isMember) {
-    return m.reply('🌀 *No puedo castigar a quien no existe, cielito~*\nEse usuario no está en el grupo, y yo no hago magia negra con fantasmas 😜✨');
+    return m.reply('❌ Hmm... parece que ese usuario no está en nuestro pequeño círculo, amor. No puedo hacer magia con fantasmas~ 💋✨');
   }
 
-  // Verificar que no sea admin
+  // Verificar que no sea un administrador
   if (groupAdmins.includes(target)) {
-    return m.reply('🚫 *Alto ahí, gatito~*\nEse usuario es un admin, y está bajo mi protección... por ahora 😈💖');
+    return m.reply('❌ Ay, no tan rápido, cariño~ No puedes expulsar a un administrador... esos están bajo mi protección especial 😈💄');
   }
 
   try {
-    // Texto dramático de Hinata malvada
-    await conn.sendMessage(m.chat, {
-      text: `💄 *"Hinata ha despertado su lado oscuro..."* 👠\n\n👋 @${target.split('@')[0]}...\n💬 *Tus pecados no serán perdonados.*\n\n🧹✨ ¡Que se largue esta rata!`,
-      mentions: [target]
-    }, { quoted: m });
-
-    // Audio malvado (puedes reemplazarlo con uno más "Hinata" si quieres)
-    await conn.sendMessage(m.chat, {
-      audio: { url: 'https://n.uguu.se/CfuenqXz.mp3' },
-      mimetype: 'audio/mp4',
-      ptt: true
-    }, { quoted: m });
-
-    await delay(2000);
-
     await conn.groupParticipantsUpdate(m.chat, [target], 'remove');
+    await conn.sendMessage(m.chat, {
+      text: `✅ El usuario @${target.split('@')[0]} ha sido expulsado del grupo por travieso~ 💅✨`,
+      mentions: [target],
+    }, { quoted: m });
   } catch (err) {
     console.error(err);
-    return m.reply(`⚠️ *Oops... algo salió mal expulsando a la víctima:*\n${err.message}`);
+    return m.reply(`❌ Ups... algo salió mal al expulsar al usuario: ${err.message}`);
   }
 };
 
-handler.command = handler.help = ['kick', 'ban', 'expulsar', 'sacar', 'desaparecer', 'fuera', 'v'];
-
-handler.group = true;
-handler.botAdmin = true;
-handler.admin = true;
-handler.register = true;
+// 🛠️ Lista de comandos compatibles con este handler
+handler.command = handler.help = ['kick', 'ban', 'v', 'bu', 'expulsar', 'sacar', 'murir'];
 
 export default handler;
-
-const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+                   
