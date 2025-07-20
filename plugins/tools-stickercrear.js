@@ -7,7 +7,8 @@ let comandos = JSON.parse(fs.existsSync(FILE_DB) ? fs.readFileSync(FILE_DB) : '{
 
 let handler = async (m, { conn, text, args, usedPrefix, command }) => {
   let stickerMessage = m.quoted && m.quoted.mtype === 'stickerMessage' ? m.quoted : null
-  let [comando, url] = text.split('/')
+  let [comando, ...urlArray] = text.trim().split('/')
+  let url = urlArray.join('/').trim()
 
   if (!stickerMessage && !url) return m.reply(`⚠️ Responde a un sticker o usa el comando con una URL de imagen.\n\n📌 Ejemplo:\n${usedPrefix + command} menu/https://files.catbox.moe/7wlljk.jpg`)
 
@@ -17,14 +18,18 @@ let handler = async (m, { conn, text, args, usedPrefix, command }) => {
   if (stickerMessage?.msg?.fileSha256) {
     hash = stickerMessage.msg.fileSha256.toString('base64')
   } else if (url) {
-    let res = await fetch(url)
-    if (!res.ok) return m.reply('❌ No se pudo descargar la imagen.')
-    let buffer = await res.buffer()
-    hash = require('crypto').createHash('sha256').update(buffer).digest('base64')
+    try {
+      let res = await fetch(url)
+      if (!res.ok) return m.reply('❌ No se pudo descargar la imagen.')
+      let buffer = await res.buffer()
+      hash = require('crypto').createHash('sha256').update(buffer).digest('base64')
 
-    // convierte la imagen a sticker y la envía
-    let stickerBuffer = await sticker(buffer, false, {}, { packname: "Sticker Comando", author: "🐉NeoTokyo Beats🐲" })
-    await conn.sendMessage(m.chat, { sticker: stickerBuffer }, { quoted: m })
+      // convierte la imagen a sticker y la envía
+      let stickerBuffer = await sticker(buffer, false, {}, { packname: "Sticker Comando", author: "🐉NeoTokyo Beats🐲" })
+      await conn.sendMessage(m.chat, { sticker: stickerBuffer }, { quoted: m })
+    } catch (err) {
+      return m.reply('❌ URL inválida o no se pudo procesar la imagen.')
+    }
   }
 
   if (!hash) return m.reply('❌ No se pudo generar hash.')
