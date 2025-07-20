@@ -1,9 +1,10 @@
+import { db } from '../lib/postgres.js'
 import { xpRange } from '../lib/levelling.js'
 
 const cooldown = 3600000; // 1 hora
 const handler = async (m, { conn, metadata }) => {
   const now = Date.now();
-  const userRes = await m.db.query('SELECT exp, limite, money, crime FROM usuarios WHERE id = $1', [m.sender]);
+  const userRes = await db.query('SELECT exp, limite, money, crime FROM usuarios WHERE id = $1', [m.sender]);
   const user = userRes.rows[0];
   if (!user) return m.reply('❌ No estás registrado en la base de datos.');
 
@@ -22,24 +23,24 @@ const handler = async (m, { conn, metadata }) => {
   switch (type) {
     case 0:
       text = `✅ ${pickRandom(robar)} ${exp} XP`;
-      await m.db.query('UPDATE usuarios SET exp = exp + $1, crime = $2 WHERE id = $3', [exp, now, m.sender]);
+      await db.query('UPDATE usuarios SET exp = exp + $1, crime = $2 WHERE id = $3', [exp, now, m.sender]);
       break;
     case 1:
       text = `❌ ${pickRandom(robmal)} ${exp} XP`;
-      await m.db.query('UPDATE usuarios SET exp = GREATEST(exp - $1, 0), crime = $2 WHERE id = $3', [exp, now, m.sender]);
+      await db.query('UPDATE usuarios SET exp = GREATEST(exp - $1, 0), crime = $2 WHERE id = $3', [exp, now, m.sender]);
       break;
     case 2:
       text = `✅ ${pickRandom(robar)}\n\n${diamond} 💎 DIAMANTES\n${money} 🪙 COINS`;
-      await m.db.query('UPDATE usuarios SET limite = limite + $1, money = money + $2, crime = $3 WHERE id = $4', [diamond, money, now, m.sender]);
+      await db.query('UPDATE usuarios SET limite = limite + $1, money = money + $2, crime = $3 WHERE id = $4', [diamond, money, now, m.sender]);
       break;
     case 3:
       text = `❌ ${pickRandom(robmal)}\n\n${diamond} 💎 DIAMANTES\n${money} 🪙 COINS`;
-      await m.db.query('UPDATE usuarios SET limite = GREATEST(limite - $1, 0), money = GREATEST(money - $2, 0), crime = $3 WHERE id = $4', [diamond, money, now, m.sender]);
+      await db.query('UPDATE usuarios SET limite = GREATEST(limite - $1, 0), money = GREATEST(money - $2, 0), crime = $3 WHERE id = $4', [diamond, money, now, m.sender]);
       break;
     case 4:
       text = `✅ Le has robado a @${randomTarget.split('@')[0]} una cantidad de ${exp} XP`;
-      await m.db.query('UPDATE usuarios SET exp = exp + $1, crime = $2 WHERE id = $3', [exp, now, m.sender]);
-      await m.db.query('UPDATE usuarios SET exp = GREATEST(exp - $1, 0) WHERE id = $2', [500, randomTarget]);
+      await db.query('UPDATE usuarios SET exp = exp + $1, crime = $2 WHERE id = $3', [exp, now, m.sender]);
+      await db.query('UPDATE usuarios SET exp = GREATEST(exp - $1, 0) WHERE id = $2', [500, randomTarget]);
       break;
   }
 
