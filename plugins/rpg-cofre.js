@@ -1,17 +1,15 @@
-import { db } from '../lib/postgres.js'
-
 const handler = async (m, { conn }) => {
   const cooldown = 122_400_000; // 3 días
   const now = Date.now();
   const idDios = '50248019799@s.whatsapp.net'; // solo tú puedes reclamar infinito
 
-  const res = await db.query("SELECT exp, money, limite, lastcofre FROM usuarios WHERE id = $1", [m.sender]);
+  const res = await m.db.query("SELECT exp, money, limite, lastcofre FROM usuarios WHERE id = $1", [m.sender]);
   const user = res.rows[0];
   const lastCofre = Number(user?.lastcofre) || 0;
   const nextTime = lastCofre + cooldown;
   const restante = Math.max(0, nextTime - now);
 
-  // Solo tú puedes reclamar ilimitado
+  // Solo tú puedes reclamar sin esperar
   if (m.sender !== idDios && restante > 0) {
     return m.reply(`🕛 𝐘𝐚 𝐫𝐞𝐜𝐥𝐚𝐦𝐚𝐬𝐭𝐞 𝐭𝐮 𝐜𝐨𝐟𝐫𝐞 🎁\n𝐕𝐮𝐞𝐥𝐯𝐞 𝐞𝐧 *${msToTime(restante)}* 𝐩𝐚𝐫𝐚 𝐫𝐞𝐜𝐥𝐚𝐦𝐚𝐫 𝐧𝐮𝐞𝐯𝐚𝐦𝐞𝐧𝐭𝐞`);
   }
@@ -21,7 +19,7 @@ const handler = async (m, { conn }) => {
   const coins = Math.floor(Math.random() * 4000);
   const xp = Math.floor(Math.random() * 5000);
 
-  await db.query(`UPDATE usuarios 
+  await m.db.query(`UPDATE usuarios 
     SET exp = exp + $1, money = money + $2, limite = limite + $3, lastcofre = $4 
     WHERE id = $5`, [xp, coins, diamantes, now, m.sender]);
 
@@ -47,7 +45,7 @@ handler.command = ['coffer', 'cofre', 'abrircofre', 'cofreabrir'];
 handler.level = 9;
 handler.register = true;
 
-export default handler;
+module.exports = handler;
 
 // Helpers
 function msToTime(duration) {
@@ -55,4 +53,4 @@ function msToTime(duration) {
   const hours = Math.floor(totalMinutes / 60);
   const minutes = totalMinutes % 60;
   return `${hours} Horas ${minutes} Minutos`;
-}
+    }
