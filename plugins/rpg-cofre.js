@@ -54,7 +54,7 @@ handler.help = ['cofre'];
 handler.tags = ['rpg'];
 handler.command = ['cofre'];
 handler.level = 5;
-handler.group = true;
+handler.group = false;
 handler.register = true;
 
 export default handler;
