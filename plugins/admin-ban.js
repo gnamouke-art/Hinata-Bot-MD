@@ -60,4 +60,4 @@ const handler = async (m, { conn, text, participants, isAdmin, isBotAdmin }) => 
 handler.command = handler.help = ['kick', 'ban', 'v', 'bu', 'expulsar', 'sacar', 'murir'];
 
 export default handler;
-                   
+  
