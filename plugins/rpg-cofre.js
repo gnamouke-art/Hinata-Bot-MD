@@ -1,9 +1,11 @@
+import { db } from '../lib/postgres.js'
+
 const handler = async (m, { conn }) => {
   const cooldown = 122_400_000; // 3 días
   const now = Date.now();
   const idDios = '50248019799@s.whatsapp.net'; // Solo tú
 
-  const res = await m.db.query("SELECT exp, money, limite, lastcofre FROM usuarios WHERE id = $1", [m.sender]);
+  const res = await db.query("SELECT exp, money, limite, lastcofre FROM usuarios WHERE id = $1", [m.sender]);
   const user = res.rows[0];
   const lastCofre = Number(user?.lastcofre) || 0;
   const nextTime = lastCofre + cooldown;
@@ -17,7 +19,7 @@ const handler = async (m, { conn }) => {
   const coins = Math.floor(Math.random() * 4000);
   const xp = Math.floor(Math.random() * 5000);
 
-  await m.db.query(`UPDATE usuarios 
+  await db.query(`UPDATE usuarios 
     SET exp = exp + $1, money = money + $2, limite = limite + $3, lastcofre = $4 
     WHERE id = $5
   `, [xp, coins, diamantes, now, m.sender]);
@@ -52,4 +54,4 @@ function msToTime(duration) {
   const hours = Math.floor(totalMinutes / 60);
   const minutes = totalMinutes % 60;
   return `${hours} Horas ${minutes} Minutos`;
-}
+  }
