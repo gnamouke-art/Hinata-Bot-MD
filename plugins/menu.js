@@ -45,14 +45,15 @@ let handler = async (m, { conn }) => {
 
 ─────────────────────────────
 
-🛡️ 𝐀𝐃𝐌𝐈𝐍
+🛡️ 𝐀𝐃𝐌𝐈𝐍 /grupo
 • .kick — Expulsar usuario
 • .getplugin — Obtener plugin
 • .getpack — Descargar pack
 • .store — Ver tienda
 • .status — Estado actual
 • .ping — Latencia del bot
-
+• .link obten el link del grupo si el bot es admin
+• .kicknum  elimina alos que tengan el mismo prefix
 ─────────────────────────────
 
 🎲 𝐑𝐀𝐍𝐃𝐎𝐌 𝐘 𝐖𝐀𝐈𝐅𝐔𝐒
