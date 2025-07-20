@@ -1,56 +1,69 @@
-const handler = async (m, { conn }) => {
-  const cooldown = 122_400_000; // 3 días
-  const now = Date.now();
-  const idDios = '50248019799@s.whatsapp.net'; // solo tú puedes reclamar infinito
-
-  const res = await m.db.query("SELECT exp, money, limite, lastcofre FROM usuarios WHERE id = $1", [m.sender]);
-  const user = res.rows[0];
-  const lastCofre = Number(user?.lastcofre) || 0;
-  const nextTime = lastCofre + cooldown;
-  const restante = Math.max(0, nextTime - now);
-
-  // Solo tú puedes reclamar sin esperar
-  if (m.sender !== idDios && restante > 0) {
-    return m.reply(`🕛 𝐘𝐚 𝐫𝐞𝐜𝐥𝐚𝐦𝐚𝐬𝐭𝐞 𝐭𝐮 𝐜𝐨𝐟𝐫𝐞 🎁\n𝐕𝐮𝐞𝐥𝐯𝐞 𝐞𝐧 *${msToTime(restante)}* 𝐩𝐚𝐫𝐚 𝐫𝐞𝐜𝐥𝐚𝐦𝐚𝐫 𝐧𝐮𝐞𝐯𝐚𝐦𝐞𝐧𝐭𝐞`);
+const handler = async (m, { isPrems, conn }) => {
+  if (!global.db.data.users[m.sender]) {
+    throw `⚠️ Usuario no encontrado.`;
   }
 
-  const img = 'https://img.freepik.com/vector-gratis/cofre-monedas-oro-piedras-preciosas-cristales-trofeo_107791-7769.jpg?w=2000';
-  const diamantes = Math.floor(Math.random() * 30);
-  const coins = Math.floor(Math.random() * 4000);
-  const xp = Math.floor(Math.random() * 5000);
+  const lastCofreTime = global.db.data.users[m.sender].lastcofre;
+  const timeToNextCofre = lastCofreTime + 86400000;
 
-  await m.db.query(`UPDATE usuarios 
-    SET exp = exp + $1, money = money + $2, limite = limite + $3, lastcofre = $4 
-    WHERE id = $5`, [xp, coins, diamantes, now, m.sender]);
+  if (Date.now() < timeToNextCofre) {
+    const tiempoRestante = timeToNextCofre - Date.now();
+    const mensajeEspera = `🎁 Ya reclamaste tu cofre\n⏰️ Regresa en: *${msToTime(tiempoRestante)}* para volver a reclamar.`;
+    await conn.sendMessage(m.chat, { text: mensajeEspera }, { quoted: m });
+    return;
+  }
 
-  const texto = `[ 🛒 𝐎𝐁𝐓𝐈𝐄𝐍𝐄𝐒 𝐔𝐍 𝐂𝐎𝐅𝐑𝐄 🎉 ]
+  const img = 'https://pomf2.lain.la/f/onjn2935.jpg';
+  const dia = Math.floor(Math.random() * 30);
+  const tok = Math.floor(Math.random() * 10);
+  const ai = Math.floor(Math.random() * 4000);
+  const expp = Math.floor(Math.random() * 5000);
 
-* ${diamantes} 𝐃𝐢𝐚𝐦𝐚𝐧𝐭𝐞𝐬 💎
-* ${coins} 𝐂𝐨𝐢𝐧𝐬 🪙
-* ${xp} 𝐄𝐱𝐩 ⚡`;
+  global.db.data.users[m.sender].dragones += dia;
+  global.db.data.users[m.sender].money += ai;
+  global.db.data.users[m.sender].joincount += tok;
+  global.db.data.users[m.sender].exp += expp;
+  global.db.data.users[m.sender].lastcofre = Date.now();
 
-  await conn.sendMessage(m.chat, { image: { url: img }, caption: texto }, { quoted: {
-    key: {
-      fromMe: false,
-      participant: '0@s.whatsapp.net',
-      remoteJid: 'status@broadcast'
-    },
-    message: { conversation: '🎉 Obtiene un regalo 🎁' }
-  }});
+  const texto = `
+╭━〔 ${global.botname} 〕⬣
+┃🧰 *Obtienes Un Cofre*
+┃ ¡Felicidades!
+╰━━━━━━━━━━━━⬣
+
+╭━〔 ${global.botname} 〕⬣
+┃ *${dia} yenes* 💴
+┃ *${tok} Tokens* ⚜️
+┃ *${ai} Coins* 🪙
+┃ *${expp} Exp* ✨
+╰━━━━━━━━━━━━⬣`;
+
+  try {
+    await conn.sendFile(m.chat, img, 'goku.jpg', texto);
+  } catch (error) {
+    throw `⚠️ Ocurrió un error al enviar el cofre.`;
+  }
 };
 
-handler.help = ['cofre', 'coffer', 'abrircofre'];
-handler.tags = ['econ'];
-handler.command = ['coffer', 'cofre', 'abrircofre', 'cofreabrir'];
-handler.level = 9;
+handler.help = ['cofre'];
+handler.tags = ['rpg'];
+handler.command = ['cofre'];
+handler.level = 5;
+handler.group = true;
 handler.register = true;
 
-module.exports = handler;
+export default handler;
 
-// Helpers
 function msToTime(duration) {
-  const totalMinutes = Math.floor(duration / 60000);
-  const hours = Math.floor(totalMinutes / 60);
-  const minutes = totalMinutes % 60;
+  const milliseconds = parseInt((duration % 1000) / 100);
+  let seconds = Math.floor((duration / 1000) % 60);
+  let minutes = Math.floor((duration / (1000 * 60)) % 60);
+  let hours = Math.floor((duration / (1000 * 60 * 60)) % 24);
+
+  hours = (hours < 10) ? '0' + hours : hours;
+  minutes = (minutes < 10) ? '0' + minutes : minutes;
+  seconds = (seconds < 10) ? '0' + seconds : seconds;
+
   return `${hours} Horas ${minutes} Minutos`;
-    }
+      }
+                           
