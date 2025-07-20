@@ -3,7 +3,7 @@ import { db } from '../lib/postgres.js'
 const handler = async (m, { conn }) => {
   const cooldown = 122_400_000; // 3 días
   const now = Date.now();
-  const idDios = '50248019799@s.whatsapp.net'; // Solo tú
+  const idDios = '50248019799@s.whatsapp.net'; // solo tú puedes reclamar infinito
 
   const res = await db.query("SELECT exp, money, limite, lastcofre FROM usuarios WHERE id = $1", [m.sender]);
   const user = res.rows[0];
@@ -11,8 +11,10 @@ const handler = async (m, { conn }) => {
   const nextTime = lastCofre + cooldown;
   const restante = Math.max(0, nextTime - now);
 
-  if (m.sender !== idDios && restante > 0)
+  // Solo tú puedes reclamar ilimitado
+  if (m.sender !== idDios && restante > 0) {
     return m.reply(`🕛 𝐘𝐚 𝐫𝐞𝐜𝐥𝐚𝐦𝐚𝐬𝐭𝐞 𝐭𝐮 𝐜𝐨𝐟𝐫𝐞 🎁\n𝐕𝐮𝐞𝐥𝐯𝐞 𝐞𝐧 *${msToTime(restante)}* 𝐩𝐚𝐫𝐚 𝐫𝐞𝐜𝐥𝐚𝐦𝐚𝐫 𝐧𝐮𝐞𝐯𝐚𝐦𝐞𝐧𝐭𝐞`);
+  }
 
   const img = 'https://img.freepik.com/vector-gratis/cofre-monedas-oro-piedras-preciosas-cristales-trofeo_107791-7769.jpg?w=2000';
   const diamantes = Math.floor(Math.random() * 30);
@@ -21,8 +23,7 @@ const handler = async (m, { conn }) => {
 
   await db.query(`UPDATE usuarios 
     SET exp = exp + $1, money = money + $2, limite = limite + $3, lastcofre = $4 
-    WHERE id = $5
-  `, [xp, coins, diamantes, now, m.sender]);
+    WHERE id = $5`, [xp, coins, diamantes, now, m.sender]);
 
   const texto = `[ 🛒 𝐎𝐁𝐓𝐈𝐄𝐍𝐄𝐒 𝐔𝐍 𝐂𝐎𝐅𝐑𝐄 🎉 ]
 
@@ -54,4 +55,4 @@ function msToTime(duration) {
   const hours = Math.floor(totalMinutes / 60);
   const minutes = totalMinutes % 60;
   return `${hours} Horas ${minutes} Minutos`;
-  }
+}
