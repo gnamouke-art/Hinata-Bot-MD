@@ -54,6 +54,9 @@ let handler = async (m, { conn }) => {
 • .ping — Latencia del bot
 • .link obten el link del grupo si el bot es admin
 • .kicknum  elimina alos que tengan el mismo prefix
+• .nuevonombregrupo 😼cambia el nombre del grupo ⚡
+• .
+• .
 ─────────────────────────────
 
 🎲 𝐑𝐀𝐍𝐃𝐎𝐌 𝐘 𝐖𝐀𝐈𝐅𝐔𝐒
