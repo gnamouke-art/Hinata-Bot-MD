@@ -524,7 +524,7 @@ global.dfail = (type, m, conn, usedPrefix) => {
         private: '⚠️ Vamos al privado, este comando solo funciona en el privado del bot. ¡Hablemos en privado! 🤫',
         admin: '🤨 No eres admins. Solo los admins pueden usar este comando. ¡Necesito a los jefes aquí! 🛡️',
         botAdmin: '⚠️ haz admin al Bot "YO" para poder usar este comando.',
-        unreg: '「🌸 ¡A-Ano...! 🌸N-no estás registrado todavía... 😣💦No apareces en mi base de datos... gomen... ✋😖 P-por favor... si quieres usar mis funciones... usa este comando: Comando: #reg nombre.edad Ejemplo: #reg 🐉𝙉𝙚𝙤𝙏𝙤𝙠𝙮𝙤 𝘽𝙚𝙖𝙩𝙨🐲.18 🍃 ¡Y-yo estaré esperando! 💕🥺',
+        unreg: '🌸 ¡A-Ano...! N-no estás registrado... 😣💦 Usa: #reg nombre.edad\nEj: #reg 🐉NeoTokyo🐲.18 🍃 ¡Te estaré esperando! 💕🥺',
         restrict: '[ 🔐 ] Este comando esta desactivado por mi jefe'
     }[type]
     if (msg) return conn.sendMessage(m.chat, { 
