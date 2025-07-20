@@ -18,7 +18,7 @@ let handler = async (m, { conn, args, command }) => {
 
 handler.help = ['setdesc <texto>']
 handler.tags = ['group']
-handler.command = /^setdesk|setdesc|newdesc|descripción|descripcion$/i
+handler.command = /^setdesk|cambiardescripsion|newdesc|descripción|descripcion$/i
 handler.group = true
 handler.admin = true
 handler.botAdmin = true
