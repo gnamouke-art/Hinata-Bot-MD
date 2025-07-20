@@ -20,7 +20,7 @@ const handler = async (m, { isPrems, conn }) => {
   }
 
   // Recompensas aleatorias
-  const img = 'https://i.imgur.com/Xb9hJdv.jpg'; // imagen confiable
+  const img = 'https://h.uguu.se/vANYkZoC.jpg'; // imagen confiable
   const yenes = Math.floor(Math.random() * 30);
   const tokens = Math.floor(Math.random() * 10);
   const coins = Math.floor(Math.random() * 4000);
@@ -58,7 +58,7 @@ handler.help = ['cofre'];
 handler.tags = ['rpg'];
 handler.command = ['cofre'];
 handler.level = 5;
-handler.group = true;
+handler.group = false;
 handler.register = true;
 
 export default handler;
