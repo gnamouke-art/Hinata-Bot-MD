@@ -1,105 +1,71 @@
-import { db } from '../lib/postgres.js'
-import { xpRange } from '../lib/levelling.js'
+const cooldowns = {};
+const OWNER_JID = '50248019799@s.whatsapp.net';
 
-const cooldown = 3600000; // 1 hora
-const handler = async (m, { conn, metadata }) => {
-  const now = Date.now();
-  const userRes = await db.query('SELECT exp, limite, money, crime FROM usuarios WHERE id = $1', [m.sender]);
-  const user = userRes.rows[0];
-  if (!user) return m.reply('❌ No estás registrado en la base de datos.');
+let handler = async (m, { conn, text, command, usedPrefix }) => {
+  let users = global.db.data.users;
+  let senderId = m.sender;
+  let senderName = await conn.getName(senderId);
 
-  const timePassed = now - (user.crime || 0);
-  if (timePassed < cooldown && m.sender !== '50248019799@s.whatsapp.net')
-    return m.reply(`🕐 Ya cometiste un crimen, espera *${msToTime(cooldown - timePassed)}* para volver a intentarlo.`);
+  let tiempoEspera = 5 * 60 * 1000; // 5 minutos
 
-  const participants = metadata.participants.map(v => v.id);
-  const randomTarget = participants[Math.floor(Math.random() * participants.length)];
-  const exp = Math.floor(Math.random() * 7000);
-  const diamond = Math.floor(Math.random() * 30);
-  const money = Math.floor(Math.random() * 9000);
-  const type = Math.floor(Math.random() * 5);
+  if (senderId !== OWNER_JID) {
+    if (cooldowns[senderId] && Date.now() - cooldowns[senderId] < tiempoEspera) {
+      let tiempoRestante = segundosAHMS(Math.ceil((cooldowns[senderId] + tiempoEspera - Date.now()) / 1000));
+      return m.reply(`🍭 Ya has cometido un crimen recientemente, espera ⏱ *${tiempoRestante}* para cometer otro.`);
+    }
+    cooldowns[senderId] = Date.now();
+  }
 
-  let text = '';
-  switch (type) {
+  let senderLimit = users[senderId].limit || 0;
+  let userIds = Object.keys(users).filter(id => id !== senderId);
+  if (userIds.length === 0) return m.reply("❌ No hay suficientes jugadores para robar.");
+
+  let randomUserId = userIds[Math.floor(Math.random() * userIds.length)];
+  let randomUserLimit = users[randomUserId].limit || 0;
+
+  let minAmount = 15, maxAmount = 50;
+  let amountTaken = Math.floor(Math.random() * (maxAmount - minAmount + 1)) + minAmount;
+  let randomOption = Math.floor(Math.random() * 3);
+
+  switch (randomOption) {
     case 0:
-      text = `✅ ${pickRandom(robar)} ${exp} XP`;
-      await db.query('UPDATE usuarios SET exp = exp + $1, crime = $2 WHERE id = $3', [exp, now, m.sender]);
+      users[senderId].limit += amountTaken;
+      users[randomUserId].limit = Math.max(randomUserLimit - amountTaken, 0);
+      conn.sendMessage(m.chat, {
+        text: `🍭 ¡Lograste cometer tu crimen con éxito! Acabas de robar *${amountTaken} 🍭 Dulces* a @${randomUserId.split("@")[0]}.\n\nSe suman *+${amountTaken} 🍭 Dulces* a ${senderName}.`,
+        contextInfo: { mentionedJid: [randomUserId] }
+      }, { quoted: m });
       break;
+
     case 1:
-      text = `❌ ${pickRandom(robmal)} ${exp} XP`;
-      await db.query('UPDATE usuarios SET exp = GREATEST(exp - $1, 0), crime = $2 WHERE id = $3', [exp, now, m.sender]);
+      let amountSubtracted = Math.min(Math.floor(Math.random() * (senderLimit - minAmount + 1)) + minAmount, maxAmount);
+      users[senderId].limit = Math.max(senderLimit - amountSubtracted, 0);
+      m.reply(`🍭 No fuiste cuidadoso y te atraparon. Se restaron *-${amountSubtracted} 🍬 Dulces* a ${senderName}.`);
       break;
+
     case 2:
-      text = `✅ ${pickRandom(robar)}\n\n${diamond} 💎 DIAMANTES\n${money} 🪙 COINS`;
-      await db.query('UPDATE usuarios SET limite = limite + $1, money = money + $2, crime = $3 WHERE id = $4', [diamond, money, now, m.sender]);
-      break;
-    case 3:
-      text = `❌ ${pickRandom(robmal)}\n\n${diamond} 💎 DIAMANTES\n${money} 🪙 COINS`;
-      await db.query('UPDATE usuarios SET limite = GREATEST(limite - $1, 0), money = GREATEST(money - $2, 0), crime = $3 WHERE id = $4', [diamond, money, now, m.sender]);
-      break;
-    case 4:
-      text = `✅ Le has robado a @${randomTarget.split('@')[0]} una cantidad de ${exp} XP`;
-      await db.query('UPDATE usuarios SET exp = exp + $1, crime = $2 WHERE id = $3', [exp, now, m.sender]);
-      await db.query('UPDATE usuarios SET exp = GREATEST(exp - $1, 0) WHERE id = $2', [500, randomTarget]);
+      let smallAmountTaken = Math.min(Math.floor(Math.random() * (randomUserLimit / 2 - minAmount + 1)) + minAmount, maxAmount);
+      users[senderId].limit += smallAmountTaken;
+      users[randomUserId].limit = Math.max(randomUserLimit - smallAmountTaken, 0);
+      conn.sendMessage(m.chat, {
+        text: `🍭 Lograste tu crimen, pero te descubrieron y solo tomaste *${smallAmountTaken} 🍬 Dulces* de @${randomUserId.split("@")[0]}.\n\nSe suman *+${smallAmountTaken} 🍬 Dulces* a ${senderName}.`,
+        contextInfo: { mentionedJid: [randomUserId] }
+      }, { quoted: m });
       break;
   }
 
-  return conn.sendMessage(m.chat, { text, mentions: [m.sender, randomTarget] }, { quoted: m });
+  global.db.write();
 };
 
-handler.help = ['crime'];
-handler.tags = ['econ'];
-handler.command = /^(crime|crimen)$/i;
-handler.register = true;
+handler.tags = ["rpg"];
+handler.help = ["crimen"];
+handler.command = ["crimen", "crime"];
 handler.group = true;
 
 export default handler;
 
-function msToTime(duration) {
-  const minutes = Math.floor((duration / 1000 / 60) % 60);
-  const hours = Math.floor((duration / 1000 / 60 / 60) % 24);
-  return `${hours.toString().padStart(2, '0')} Hora(s) ${minutes.toString().padStart(2, '0')} Minuto(s)`;
+function segundosAHMS(segundos) {
+  let minutos = Math.floor(segundos / 60);
+  let segundosRestantes = segundos % 60;
+  return `${minutos} minutos y ${segundosRestantes} segundos`;
 }
-
-function pickRandom(list) {
-  return list[Math.floor(Math.random() * list.length)];
-}
-
-let robar = [
-  'Robaste un Banco 🏦 y Obtuviste:',
-  'Negociaste con el jefe de la mafia y Obtuviste:',
-  'Hackeaste una cuenta bancaria secreta y conseguiste:',
-  'Interceptaste una transferencia millonaria y robaste:',
-  'Vendiste información clasificada al mercado negro y ganaste:',
-  'Asaltaste a un político corrupto y recuperaste:',
-  'Fingiste ser técnico de sistemas y robaste:',
-  'Vaciaste una bóveda privada sin dejar huellas. Obtuviste:',
-  'Sobornaste a un guardia y entraste a la bóveda. Ganaste:',
-  'Hiciste una estafa piramidal y te llevaste:',
-  'Hackeaste un casino online y cobraste:',
-  'Engañaste a un jeque árabe y conseguiste:',
-  'Viajaste en el tiempo y robaste oro antiguo por un valor de:',
-  'Robaste un yate lujoso cargado de joyas. Obtuviste:',
-  'Interceptaste un convoy blindado y te quedaste con:',
-  'Infiltraste una base secreta y encontraste:',
-  'Vendiste NFTs falsos y obtuviste:',
-  'Te hiciste pasar por Elon Musk y robaste criptomonedas por valor de:',
-];
-
-let robmal = [
-  'La policía te vio 😭 PERDISTE:',
-  'Tu compinche te traicionó y te arrestaron. Perdiste:',
-  'Activaste la alarma sin querer. Te arrestaron y perdiste:',
-  'Te atraparon disfrazado de repartidor. Perdiste:',
-  'El guardia del banco era ex militar. Te noqueó. Perdiste:',
-  'Tu máscara se cayó y te reconocieron. Fuiste arrestado. Perdiste:',
-  'Tu auto de escape explotó. No pudiste huir. Perdiste:',
-  'Hackeaste mal y dejaste rastros. El FBI te encontró. Perdiste:',
-  'Presumiste el dinero robado en TikTok. Te arrestaron. Perdiste:',
-  'La víctima era otro criminal. Te robó a ti. Perdiste:',
-  'Sistema de seguridad con reconocimiento facial. Te capturaron. Perdiste:',
-  'El paquete robado tenía un GPS. Te hallaron. Perdiste:',
-  'Vendiste el botín en el mercado negro... y era trampa. Te arrestaron. Perdiste:',
-  'Tu cómplice era un agente encubierto. Te traicionó. Perdiste:',
-  'El banco estaba vacío. Perdiste tiempo y quedaste en ridículo. Perdiste:',
-];
