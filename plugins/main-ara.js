@@ -1,13 +1,20 @@
 const handler = async (m, { conn }) => {
-  // Enviar solo el audio de Pikachu
+  const audios = [
+    'https://files.catbox.moe/55r702.mp4', // Primer audio
+    'https://o.uguu.se/gOSSscdF.opus', // Segundo audio
+    'https://n.uguu.se/jGUWWmwU.opus'  // Tercer audio (puedes cambiarlo)
+  ];
+
+  const randomAudio = audios[Math.floor(Math.random() * audios.length)];
+
   await conn.sendMessage(m.chat, {
-    audio: { url: 'https://files.catbox.moe/55r702.mp4' }, // Audio
+    audio: { url: randomAudio },
     mimetype: 'audio/mpeg',
-    ptt: true, // Cambia a true si prefieres enviarlo como nota de voz
+    ptt: true,
   }, { quoted: m });
 };
 
-// Hacer que funcione sin prefijo
+// Sin prefijo
 handler.customPrefix = /^(ara ara)$/i;
 handler.command = new RegExp;
 
