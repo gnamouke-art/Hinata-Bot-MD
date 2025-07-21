@@ -1,22 +1,13 @@
-import fetch from 'node-fetch';
-
 const handler = async (m, { conn }) => {
-  try {
-    // puedes comentar o eliminar estas líneas si solo quieres el mensaje
-    // const res = await fetch('https://api.sylphy.xyz/nsfw/hentai');
-    // const data = await res.json();
-
-    return m.reply('❌ No se pudo obtener una imagen hentai.');
-
-  } catch (e) {
-    console.error(e);
-    m.reply('⚠️ Ocurrió un error al obtener el hentai. Intenta más tarde.');
-  }
+  const url = 'https://nekobot.xyz/api/image?type=hentai';
+  const res = await fetch(url).then(v => v.json());
+  await conn.sendFile(m.chat, res.message, 'hentai.jpg', `🥵 *Mmm toma tu hentai pervertido...*`, m);
 };
-
-handler.command = /^hentai$/i;
-handler.tags = ['nsfw'];
+handler.command = ['hentai'];
 handler.help = ['hentai'];
+handler.tags = ['nsfw'];
 handler.premium = false;
+handler.group = false;
+handler.register = true;
 
 export default handler;
