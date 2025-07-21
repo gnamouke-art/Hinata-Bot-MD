@@ -2,7 +2,7 @@ import fetch from 'node-fetch';
 
 const handler = async (m, { conn }) => {
   try {
-    const res = await fetch('https://nekos.life/api/v2/img/boobs');
+    const res = await fetch('https://waifu.pics/sfw/neko');
     const contentType = res.headers.get('content-type') || '';
     if (!contentType.includes('application/json')) {
       throw new Error(`Respuesta inesperada: ${contentType}`);
@@ -12,7 +12,7 @@ const handler = async (m, { conn }) => {
 
     await conn.sendMessage(m.chat, {
       image: { url: json.url },
-      caption: `🍒 Tómate estas tetas, cochino 😏`,
+      caption: `🍒 Tómate estas nekos, cochino 😏`,
     }, { quoted: m });
   } catch (e) {
     console.error(e);
@@ -34,9 +34,9 @@ const handler = async (m, { conn }) => {
   }
 };
 
-handler.command = ['tetas'];
+handler.command = ['neko'];
 handler.tags = ['nsfw'];
-handler.help = ['tetas'];
+handler.help = ['neko'];
 handler.register = true;
 
 export default handler;
