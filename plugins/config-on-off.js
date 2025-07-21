@@ -1,28 +1,27 @@
 let handler = async (m, { conn, usedPrefix, command, args }) => {
-    const chat = global.db.data.chats[m.chat];
-    if (!chat) throw `⚠️ Este comando solo puede usarse en grupos.`;
+  const chat = global.db.data.chats[m.chat];
+  if (!chat) throw `❌ Este comando solo puede usarse en grupos.`;
 
-    // Argumento esperado: nombre de la configuración
-    const setting = args[0]?.toLowerCase();
-    if (!setting) throw `⚠️ Especifica la configuración que deseas cambiar.\n\nUso: *${usedPrefix + command} <welcome/bye>*`;
+  const setting = args[0]?.toLowerCase();
+  if (!setting) {
+    throw `⚠️ Debes especificar qué deseas *${command === 'on' ? 'activar' : 'desactivar'}*.\n\nUso correcto:\n*${usedPrefix + command} welcome*\n*${usedPrefix + command} bye*`;
+  }
 
-    // Configuraciones permitidas
-    const validSettings = ['welcome', 'bye', 'nsfw'];
-    if (!validSettings.includes(setting)) {
-        throw `⚠️ Configuración no válida.\n\nOpciones disponibles:\n- welcome\n- bye`;
-    }
+  const validSettings = ['welcome', 'bye'];
+  if (!validSettings.includes(setting)) {
+    throw `🚫 Opción inválida.\nSolo puedes cambiar:\n• *welcome*\n• *bye*`;
+  }
 
-    // Determinar acción (activar/desactivar)
-    const action = command === 'on';
-    chat[setting] = action;
+  const enable = command === 'on';
+  chat[setting] = enable;
 
-    m.reply(`✅ La configuración *${setting}* ha sido ${action ? 'activada' : 'desactivada'} correctamente.`);
+  m.reply(`✅ La configuración *${setting.toUpperCase()}* ha sido *${enable ? 'activada' : 'desactivada'}* con éxito 😎`);
 };
 
-handler.help = ['on <setting>', 'off <setting>'];
+handler.help = ['on <welcome/bye>', 'off <welcome/bye>'];
 handler.tags = ['group', 'config'];
-handler.command = ['on', 'off'];
-handler.admin = true; // Solo administradores pueden cambiar configuraciones
-handler.group = true; // Solo se permite en grupos
+handler.command = /^(on|off)$/i;
+handler.admin = true;
+handler.group = true;
 
 export default handler;
