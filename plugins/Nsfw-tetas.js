@@ -2,18 +2,35 @@ import fetch from 'node-fetch';
 
 const handler = async (m, { conn }) => {
   try {
-    const res = await fetch('https://api.waifu.pics/nsfw/boobs');
+    const res = await fetch('https://nekos.life/api/v2/img/boobs');
+    const contentType = res.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      throw new Error(`Respuesta inesperada: ${contentType}`);
+    }
     const json = await res.json();
-
-    if (!json.url) throw 'No se encontró imagen';
+    if (!json.url) throw new Error('No se encontró "url" en la respuesta');
 
     await conn.sendMessage(m.chat, {
       image: { url: json.url },
-      caption: `🍒 Aquí tienes tus tetas, puerquito 😏\n_Disfrútalo, degenerado._`,
+      caption: `🍒 Tómate estas tetas, cochino 😏`,
     }, { quoted: m });
   } catch (e) {
     console.error(e);
-    await m.reply('❌ No se pudo obtener la imagen. La API está caída o respondió mal.');
+    // Intento alternativo con Fluxpoint API (requiere API key)
+    try {
+      const fluxKey = process.env.FLUXPOINT_KEY || 'TU_API_KEY';
+      const res2 = await fetch('https://api.fluxpoint.dev/nsfw/img/boobs', {
+        headers: { Authorization: fluxKey }
+      });
+      const j2 = await res2.json();
+      if (j2.file) {
+        return await conn.sendMessage(m.chat, {
+          image: { url: j2.file },
+          caption: `🍒 Aquí tienes unas tetas nuevas, pervertido 😏`
+        }, { quoted: m });
+      }
+    } catch (_) {}
+    return conn.sendMessage(m.chat, { text: `❌ No se pudo obtener la imagen. La API está caída o respondió mal.` }, { quoted: m });
   }
 };
 
@@ -21,7 +38,5 @@ handler.command = ['tetas'];
 handler.tags = ['nsfw'];
 handler.help = ['tetas'];
 handler.register = true;
-handler.private = false;
-handler.group = false;
 
 export default handler;
