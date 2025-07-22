@@ -1,25 +1,22 @@
-//código creado por tu jefe 🐉𝙉𝙚𝙤𝙏𝙤𝙆𝙮𝙤 𝘽𝙚𝙖𝙩𝙨🐲
-import fetch from 'node-fetch';
+// Código creado por tu diosa Hinata 🥵 powered by 🐉𝙉𝙚𝙤𝙏𝙤𝙆𝙮𝙤 𝘽𝙚𝙖𝙩𝙨🐲
+import fetch from 'node-fetch'
 
-const handler = async (m, { conn, command, usedPrefix }) => {
-  try {
-    const res = await fetch('https://nekos.life/api/v2/img/lewd');
-    const json = await res.json();
+const handler = async (m, { conn, command, usedPrefix, text }) => {
+  const res = await fetch('https://nekos.life/api/v2/img/Random_hentai_gif')
+  const json = await res.json()
 
-    await conn.sendMessage(m.chat, {
-      image: { url: json.url },
-      caption: `🥵 *${usedPrefix || ''}${command || 'pack'}*\n📦 Aquí tienes otro pack bien sucio 😈\n\nTe gusta lo pervertido, ¿eh?`,
-    }, { quoted: m });
-  } catch (e) {
-    await conn.reply(m.chat, '❎ No pude traerte el pack ahora mismo 💔', m);
-    console.error(e);
-  }
-};
+  await conn.sendMessage(m.chat, {
+    image: { url: json.url },
+    caption: `📦 Aquí tienes otro pack bien sucio 😈\n\n🥵 ¿Te gusta lo pervertido, eh?`,
+  }, { quoted: m })
+}
 
-handler.customPrefix = /^([🥵]?\s*([./!])?\s*pack)$/i;
-handler.command = new RegExp;
-handler.tags = ['nsfw'];
-handler.help = ['pack'];
-handler.register = true;
+// Comando detecta con y sin prefijo, y responde también a solo 'pack' o '🥵pack'
+handler.command = /^([🥵]?pack)$/i
+handler.tags = ['nsfw']
+handler.help = ['pack']
+handler.register = true
+handler.premium = false
+handler.nsfw = true
 
-export default handler;
+export default handler
