@@ -19,7 +19,7 @@ const handler = async (m, { conn, command, usedPrefix }) => {
 handler.customPrefix = /^([🥵]?\s*([./!])?\s*pack)$/i;
 handler.command = new RegExp;
 handler.tags = ['nsfw'];
-handler.help = ['🥵pack'];
+handler.help = ['pack'];
 handler.register = true;
 
 export default handler;
