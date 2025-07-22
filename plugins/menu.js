@@ -54,7 +54,6 @@ let handler = async (m, { conn, usedPrefix: _p }) => {
     let _uptime = process.uptime() * 1000
     let muptime = clockString(_uptime)
     let totalreg = Object.keys(global.db.data.users).length
-    let mode = global.opts["self"] ? "Privado" : "Público"
 
     let help = Object.values(global.plugins).filter(p => !p.disabled).map(p => ({
       help: Array.isArray(p.help) ? p.help : [p.help],
@@ -92,14 +91,22 @@ let handler = async (m, { conn, usedPrefix: _p }) => {
       exp: exp - min,
       maxexp: xp,
       totalreg,
-      mode,
       muptime,
       readmore: String.fromCharCode(8206).repeat(4001)
     }
 
     let text = _text.replace(/%(\w+)/g, (_, key) => replace[key] || '')
 
-    await conn.sendFile(m.chat, 'https://i.imgur.com/B7UX4pC.jpg', 'akeno-menu.jpg', text, m)
+    const videos = [
+      'https://files.catbox.moe/vjkomo.mp4',
+      'https://files.catbox.moe/qd0w49.mp4',
+      'https://files.catbox.moe/o9ha9b.mp4',
+      'https://files.catbox.moe/hbojsd.mp4',
+      'https://files.catbox.moe/zmm1hd.mp4'
+    ]
+    const selected = videos[Math.floor(Math.random() * videos.length)]
+
+    await conn.sendFile(m.chat, selected, 'akeno-menu.mp4', text, m)
 
   } catch (e) {
     console.error(e)
@@ -118,4 +125,4 @@ function clockString(ms) {
   let m = isNaN(ms) ? '--' : Math.floor(ms / 60000) % 60
   let s = isNaN(ms) ? '--' : Math.floor(ms / 1000) % 60
   return [h, m, s].map(v => v.toString().padStart(2, '0')).join(':')
-      }
+  }
