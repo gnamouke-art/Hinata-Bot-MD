@@ -1,22 +1,22 @@
-// Código creado por tu diosa Hinata 🥵 powered by 🐉𝙉𝙚𝙤𝙏𝙤𝙆𝙮𝙤 𝘽𝙚𝙖𝙩𝙨🐲
 import fetch from 'node-fetch'
 
-const handler = async (m, { conn, command, usedPrefix, text }) => {
-  const res = await fetch('https://nekos.life/api/v2/img/Random_hentai_gif')
-  const json = await res.json()
+//código creado por tu jefe 🐉𝙉𝙚𝙤𝙏𝙤𝙠𝙮𝙤 𝘽𝙚𝙖𝙩𝙨🐲
+//para Hinata Bot, deja créditos pa
 
-  await conn.sendMessage(m.chat, {
-    image: { url: json.url },
-    caption: `📦 Aquí tienes otro pack bien sucio 😈\n\n🥵 ¿Te gusta lo pervertido, eh?`,
-  }, { quoted: m })
+const handler = async (m, { conn }) => {
+  let res = await fetch('https://api.waifu.pics/nsfw/waifu')
+  if (!res.ok) throw 'No se pudo obtener el pack, intenta de nuevo...'
+  let json = await res.json()
+  await conn.sendFile(m.chat, json.url, 'pack.jpg', `Aquí tienes tu pack sucio\n¿Te gusta lo atrevido, verdad?`, m)
 }
 
-// Comando detecta con y sin prefijo, y responde también a solo 'pack' o '🥵pack'
-handler.command = /^([🥵]?pack)$/i
+handler.command = /^pack|packpack|packsito$/i
 handler.tags = ['nsfw']
 handler.help = ['pack']
 handler.register = true
 handler.premium = false
+handler.level = 0
+handler.limit = false
 handler.nsfw = true
 
 export default handler
