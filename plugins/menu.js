@@ -1,165 +1,121 @@
-import fs from 'fs';
+import { xpRange } from '../lib/levelling.js'
 
-let handler = async (m, { conn }) => {
-  try {
-    const botName = 'Hinata-Bot';
-    const currency = '¥';
-    const videoUrl = 'https://files.catbox.moe/n35h6q.mp4';
-    const version = '1.0.0';
-    const developer = 'NeoTokyo Beats';
-    const copy = '🔧 Sistema personalizado';
-
-    // Canal
-    const canalID = '120363341523880410';
-    const newsletterName = 'hinataBot. channel ✨️';
-
-    const menuMessage = `
-╭─────────────────────────────╮
-│       ✨ ${botName} ✨        │
-│    Versión: ${version}             │
-│    Desarrollado por: ${developer} │
-│    Moneda: ${currency}               │
-╰─────────────────────────────╯
-
-📌 𝐂𝐑𝐄𝐀𝐃𝐎𝐑 𝐘 𝐀𝐃𝐌𝐈𝐍
-• .cambiarnombreBot — Cambiar nombre
-• .setbanner — Establecer banner
-• .setmoneda — Cambiar moneda
-• .viewbanner — Ver banner
-• .deletebanner — Eliminar banner
-• .resetpreferences — Reiniciar preferencias
-
-─────────────────────────────
-
-🎲 𝐉𝐔𝐄𝐆𝐎𝐒 / 𝐑𝐏𝐆
-• .mina — Minería mágica
-
-─────────────────────────────
-
-🤖 𝐈𝐀 / 𝐂𝐇𝐀𝐓𝐁𝐎𝐓𝐒
-• .gimini — Habla con Gimini
-• .ia — Conversa con IA
-• .akeno — Chat Akeno Himejima
-• .demo — Pregunta a Demo
-• .dalle — Genera imagen con DALL·E
-
-─────────────────────────────
-
-🛡️ 𝐀𝐃𝐌𝐈𝐍 /grupo
-• .kick — Expulsar usuario
-• .getplugin — Obtener plugin
-• .getpack — Descargar pack
-• .store — Ver tienda
-• .status — Estado actual
-• .ping — Latencia del bot
-• .link obten el link del grupo si el bot es admin
-• .kicknum  elimina alos que tengan el mismo prefix
-• .nuevonombregrupo 😼cambia el nombre del grupo ⚡
-• .
-• .
-─────────────────────────────
-
-🎲 𝐑𝐀𝐍𝐃𝐎𝐌 𝐘 𝐖𝐀𝐈𝐅𝐔𝐒
-• .rw — Waifu random
-• .winfo — Info waifu
-• .rollwaifu — Tirar waifu
-• .claim — Reclamar waifu
-• .harem — Ver harem
-• .addrw — Añadir waifu
-• .alya — Charla con Alya
-• .kaori — Momento musical
-• .waifu — Imagen waifu
-• .fakengl — Nombre fake inglés
-
-─────────────────────────────
-
-📥 𝐃𝐄𝐒𝐂𝐀𝐑𝐆𝐀𝐒
-• .instagram — Descargar video Instagram
-• .ytmp4 — Descargar video YouTube
-• .tt / .tiktok — Descargar TikTok
-• .tiktokmp3 — Audio TikTok
-• .sp / .spotify — Descargar Spotify
-• .tksearch — Buscar TikTok
-• .tourl — Subir URL
-• .gitclone — Clonar repositorios
-• .pinterest — Imagen random
-• .pinvid — Descargar video Pinterest
-• .imagen — Descargar imagen
-• .apk — Descargar APK
-
-─────────────────────────────
-
-💰 𝐄𝐂𝐎𝐍𝐎𝐌𝐈𝐀
-• .work — Trabajar y ganar ¥
-• .slut — Riesgo o recompensa
-• .robar — Robar a otro jugador
-• .deposit — Depositar banco
-• .retirar — Retirar banco
-• .transferir — Transferir dinero
-• .perfil — Ver economía
-
-─────────────────────────────
-
-⛩️ 𝐀𝐍𝐈𝐌𝐄 𝐑𝐄𝐀𝐂𝐂𝐈𝐎𝐍𝐄𝐒
-• .abrazar — Abrazo kawaii
-• .aburrido — Me aburro
-• .bañarse — Hora del baño
-• .bleh — ¡Bleh!
-• .comer — Comiendo onigiri
-• .dance — Hora de bailar
-• .enojado — Molesto
-• .feliz — Sonríe más
-• .kiss — Envío un beso
-• .love — ¡Te amo!
-• .matar — Hora de acabar
-• .morder — Ñam~
-• .nalguear — Nalgadita
-• .punch — Golpe directo
-• .saludar — ¡Hola!
-• .bofetada — ¡Toma esto!
-• .dormir — Zzz...
-• .smoke — Fumando con estilo
-• .paja — 🔞
-
-─────────────────────────────
-
-🧰 𝐓𝐎𝐎𝐋𝐒
-• .ver — Reacciona contenido “ver una vez”
-• .get — Descargar estados
-• .subirver — Sube “ver una vez”
-• .rpf — Robar foto perfil
-• .rpf2 — Robar perfil y nombre
-
-─────────────────────────────
-
-✨ 𝐎𝐖𝐍𝐄𝐑
-• .update
-• .dsowner
-• .purgar
-• .join
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📢 𝐂𝐚𝐧𝐚𝐥 𝐨𝐟𝐢𝐜𝐢𝐚𝐥:
-${newsletterName}
-🆔 𝐈𝐃: ${canalID}@newsletter
-🔗 https://chat.whatsapp.com/channel/${canalID}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-> ${copy} — Hecho con ❤️ por ${developer}
-`;
-
-    await conn.sendMessage(m.chat, {
-      video: { url: videoUrl },
-      caption: menuMessage,
-      mentions: [m.sender],
-    });
-  } catch (error) {
-    conn.reply(m.chat, `❌ Error al cargar el menú: ${error.message}`, m);
+const textAkeno = (text) => {
+  const charset = {
+    a: 'ᴀ', b: 'ʙ', c: 'ᴄ', d: 'ᴅ', e: 'ᴇ', f: 'ꜰ', g: 'ɢ',
+    h: 'ʜ', i: 'ɪ', j: 'ᴊ', k: 'ᴋ', l: 'ʟ', m: 'ᴍ', n: 'ɴ',
+    o: 'ᴏ', p: 'ᴘ', q: 'ǫ', r: 'ʀ', s: 'ꜱ', t: 'ᴛ', u: 'ᴜ',
+    v: 'ᴠ', w: 'ᴡ', x: 'x', y: 'ʏ', z: 'ᴢ'
   }
-};
+  return text.toLowerCase().split('').map(c => charset[c] || c).join('')
+}
 
-handler.help = ['menu'];
-handler.tags = ['info'];
-handler.command = ['menu', 'help'];
+let tags = {
+  'main': textAkeno('sistema'),
+  'group': textAkeno('grupos'),
+  'serbot': textAkeno('sub bots'),
+  'owner': textAkeno('owner'),
+  'tools': textAkeno('herramientas'),
+  'fun': textAkeno('diversión'),
+  'rpg': textAkeno('rpg'),
+  'nsfw': textAkeno('nsfw'),
+  'games': textAkeno('juegos'),
+  'downloader': textAkeno('descargas'),
+  'search': textAkeno('buscador'),
+  'sticker': textAkeno('stickers')
+}
 
-export default handler;
+const defaultMenu = {
+  before: `💋 *Bienvenido al Dominio Oscuro de Akeno Himejima...*
+⚡ Soy tu guía en esta dimensión demoníaca.
+🔮 Usuario: %name
+🔪 Nivel: %level | ⚡ XP: %exp / %maxexp
+🕯 Usuarios registrados: %totalreg
+🖤 Estado: ONLINE
+⏳ Tiempo activo: %muptime
+
+───────────────
+✨ *Mis comandos están listos...*  
+¿Te atreves a jugar conmigo, amor~?
+%readmore`.trim(),
+
+  header: '\n╭──〔 🔥 %category 〕──╮',
+  body: '│ 💠 %cmd\n',
+  footer: '╰────────────────╯',
+  after: `\n🔮 *Dominio ejecutado con éxito, amor...*  
+_Si quieres más poder, solo pídelo con respeto 😈_`
+}
+
+let handler = async (m, { conn, usedPrefix: _p }) => {
+  try {
+    let { exp, level } = global.db.data.users[m.sender]
+    let { min, xp, max } = xpRange(level, global.multiplier)
+    let name = await conn.getName(m.sender)
+    let _uptime = process.uptime() * 1000
+    let muptime = clockString(_uptime)
+    let totalreg = Object.keys(global.db.data.users).length
+    let mode = global.opts["self"] ? "Privado" : "Público"
+
+    let help = Object.values(global.plugins).filter(p => !p.disabled).map(p => ({
+      help: Array.isArray(p.help) ? p.help : [p.help],
+      tags: Array.isArray(p.tags) ? p.tags : [p.tags],
+      prefix: 'customPrefix' in p,
+      limit: p.limit,
+      premium: p.premium,
+      enabled: !p.disabled
+    }))
+
+    for (let plugin of help) {
+      for (let t of plugin.tags) {
+        if (!(t in tags) && t) tags[t] = textAkeno(t)
+      }
+    }
+
+    const { before, header, body, footer, after } = defaultMenu
+
+    let _text = [
+      before,
+      ...Object.keys(tags).map(tag => {
+        const cmds = help
+          .filter(menu => menu.tags.includes(tag))
+          .map(menu => menu.help.map(cmd => body.replace(/%cmd/g, menu.prefix ? cmd : _p + cmd)).join('\n'))
+          .join('\n')
+        return `${header.replace(/%category/g, tags[tag])}\n${cmds}\n${footer}`
+      }),
+      after
+    ].join('\n')
+
+    let replace = {
+      '%': '%',
+      name,
+      level,
+      exp: exp - min,
+      maxexp: xp,
+      totalreg,
+      mode,
+      muptime,
+      readmore: String.fromCharCode(8206).repeat(4001)
+    }
+
+    let text = _text.replace(/%(\w+)/g, (_, key) => replace[key] || '')
+
+    await conn.sendFile(m.chat, 'https://i.imgur.com/B7UX4pC.jpg', 'akeno-menu.jpg', text, m)
+
+  } catch (e) {
+    console.error(e)
+    conn.reply(m.chat, '❎ Ups... fallé como tu diosa demoníaca 💔', m)
+  }
+}
+
+handler.help = ['menu']
+handler.tags = ['main']
+handler.command = ['menu', 'menú', 'help', 'ayuda']
+handler.register = true
+export default handler
+
+function clockString(ms) {
+  let h = isNaN(ms) ? '--' : Math.floor(ms / 3600000)
+  let m = isNaN(ms) ? '--' : Math.floor(ms / 60000) % 60
+  let s = isNaN(ms) ? '--' : Math.floor(ms / 1000) % 60
+  return [h, m, s].map(v => v.toString().padStart(2, '0')).join(':')
+      }
