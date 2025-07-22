@@ -4,7 +4,7 @@ let handler = async (m, { conn, usedPrefix, command, args }) => {
 
   const setting = args[0]?.toLowerCase();
   if (!setting) {
-    throw `⚠️ Debes especificar qué deseas *${command === 'activar' ? 'activ' : 'desactivar'}*.\n\nUso correcto:\n*${usedPrefix + command} welcome*\n*${usedPrefix + command} bye*`;
+    throw `⚠️ Debes especificar qué deseas *${command === 'activate' ? 'activar' : 'desactivate'}*.\n\nUso correcto:\n*${usedPrefix + command} welcome*\n*${usedPrefix + command} bye*`;
   }
 
   const validSettings = ['welcome', 'bye'];
@@ -18,9 +18,9 @@ let handler = async (m, { conn, usedPrefix, command, args }) => {
   m.reply(`✅ La configuración *${setting.toUpperCase()}* ha sido *${enable ? 'activada' : 'desactivada'}* con éxito 😎`);
 };
 
-handler.help = ['activar <welcome/bye>', 'desactivar <welcome/bye>'];
+handler.help = ['activate <welcome/bye>', 'desactivar <welcome/bye>'];
 handler.tags = ['group', 'config'];
-handler.command = /^(activar|desactivar)$/i;
+handler.command = /^(activate|desactivate)$/i;
 handler.admin = true;
 handler.group = true;
 
