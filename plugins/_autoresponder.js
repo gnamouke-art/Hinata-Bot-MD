@@ -1,43 +1,27 @@
-// plugins/cmd-autoresponder.js
-import { db } from '../lib/postgres.js'
+let handler = async (m, { conn, args, usedPrefix, command, isOwner }) => {
+  const chat = global.db.data.chats[m.chat] || {};
+  const isEnable = /true|on|encender|activar|enable|1/i.test(args[0]);
+  const isDisable = /false|off|apagar|desactivar|disable|0/i.test(args[0]);
 
-let handler = async (m, { args, isAdmin, isBotAdmin, conn }) => {
-  if (!m.isGroup) throw '🌐 Este comando solo funciona en grupos.'
-  if (!isAdmin) throw '👮‍♀️ Necesitas ser admin para usar este comando.'
-  if (!isBotAdmin) throw '🤖 Necesito ser admin para activar esta función.'
+  if (!isOwner) return m.reply('⚠️ Este comando es exclusivo para mi papi owner.');
 
-  const option = (args[0] || '').toLowerCase()
-  if (!['on', 'off'].includes(option)) {
-    throw `✳️ Usa el comando así:\n\n.autoresponder on\n.autoresponder off`
+  if (args.length === 0) {
+    let estado = chat.autoresponder ? '✅ *ACTIVADO*' : '❌ *DESACTIVADO*';
+    return m.reply(`🤖 *Modo autorespuesta:*\nEstado actual: ${estado}\n\nUsa:\n*.autoresponder on* para activar\n*.autoresponder off* para desactivar`);
   }
 
-  const prompt = option === 'on'
-    ? `Eres una bot llamada Hinata. Responde todo lo que te digan con un estilo coqueto, grosero y divertido. Sé sarcástica, directa, pero graciosa.`
-    : ''
-
-  try {
-    await db.query(
-      `INSERT INTO group_settings (group_id, sautorespond)
-       VALUES ($1, $2)
-       ON CONFLICT (group_id) DO UPDATE SET sautorespond = $2`,
-      [m.chat, prompt]
-    )
-    await conn.reply(
-      m.chat,
-      option === 'on'
-        ? '✨ Autorespuesta activada. Hinata está lista para repartir flow y sarcasmo 😈'
-        : '❌ Autorespuesta desactivada. Hinata se quedará calladita 💤',
-      m
-    )
-  } catch (e) {
-    console.error('[❌] Error guardando autoresponder:', e)
-    throw '⚠️ Error al guardar la configuración.'
+  if (isEnable) {
+    chat.autoresponder = true;
+    return m.reply('✅ *Modo autoresponder activado correctamente!*');
+  } else if (isDisable) {
+    chat.autoresponder = false;
+    return m.reply('❌ *Modo autoresponder desactivado correctamente!*');
+  } else {
+    return m.reply('⚠️ Opción no válida. Usa:\n*.autoresponder on* o *.autoresponder off*');
   }
-}
+};
 
-handler.help = ['autoresponder on', 'autoresponder off']
-handler.tags = ['group']
-handler.command = /^autoresponder$/i
-handler.group = true
+handler.command = /^autoresponder$/i;
+handler.owner = true;
 
-export default handler
+export default handler;
