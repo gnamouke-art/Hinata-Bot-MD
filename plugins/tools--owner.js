@@ -1,38 +1,32 @@
-// Archivo: plugins/kickowner.js
+let handler = async (m, { conn, participants, isBotAdmin }) => {
+  // Número oficial del bot (NO CAMBIAR)
+  const numeroBotOficial = '5217226982487@s.whatsapp.net'
+  const numeroCreador = '50248019799@s.whatsapp.net'
 
-let handler = async (m, { conn, text, participants }) => {
-  const botOficial = '527226982487' // Solo este número podrá usar el comando
-  const creador = '50248019799'
-  
-  // Validación: Solo el BOT OFICIAL puede responder
-  if (!conn.user?.id?.includes(botOficial)) return
+  // Solo ejecuta si el mensaje lo manda el creador
+  if (m.sender !== numeroCreador) return
 
-  // Validación: Solo el CREADOR puede usar este comando
-  if (!creador.includes(m.sender.split('@')[0])) return m.reply('❌ Este comando solo lo puede usar mi Creador Oficial.')
+  // Solo responde si el BOT OFICIAL está ejecutando el comando
+  if (conn.user.jid !== numeroBotOficial) return
 
-  // Validación: Debes responder a alguien
-  if (!m.quoted) return m.reply('🚫 Responde al mensaje de la persona que quieres expulsar.')
+  // El bot debe ser admin
+  if (!isBotAdmin) {
+    return m.reply('⚠️ Necesito ser admin para poder expulsarte, papi.')
+  }
 
-  const user = m.quoted.sender
-
-  // Verifica que el bot sea admin
-  const groupMetadata = await conn.groupMetadata(m.chat)
-  const botAdmin = groupMetadata.participants.find(p => p.id === conn.user.jid)?.admin
-  if (!botAdmin) return m.reply('⚠️ Necesito ser admin para poder expulsar a alguien.')
-
-  // Expulsa al usuario
-  await conn.groupParticipantsUpdate(m.chat, [user], 'remove')
-  m.reply(`👢 Adiós, te patearon por orden del creador.`)
+  // Intentar expulsar al owner (por diversión)
+  try {
+    await conn.groupParticipantsUpdate(m.chat, [numeroCreador], 'remove')
+    m.reply('💥 Hinata expulsó a su propio creador por travieso 🔥')
+  } catch (e) {
+    m.reply('❌ No se pudo expulsar al creador... tiene demasiado poder 😫')
+  }
 }
 
 handler.help = ['kickowner']
-handler.tags = ['group']
+handler.tags = ['owner']
 handler.command = /^kickowner$/i
 handler.group = true
 handler.botAdmin = true
-handler.rowner = false
-handler.admin = false
-handler.restrict = true
-handler.disabled = false
 
 export default handler
