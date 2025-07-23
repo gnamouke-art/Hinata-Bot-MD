@@ -36,7 +36,7 @@ const handler = async (m, { conn, text, command, usedPrefix }) => {
 
         const buttons = [
             {
-                buttonId: `${usedPrefix}tiktokmp3 ${text}`,
+                buttonId: `${usedPrefix}tiktokmp3${text}`,
                 buttonText: { displayText: '🎧 MP3' },
                 type: 1
             },
