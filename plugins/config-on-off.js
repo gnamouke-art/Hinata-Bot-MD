@@ -21,7 +21,7 @@ let handler = async (m, { conn, command, args, usedPrefix }) => {
 
 handler.help = ['activate <welcome/bye>', 'desactivate <welcome/bye>'];
 handler.tags = ['group', 'config'];
-handler.command = /^([.]?|)(activate|desactivate)$/i;
+handler.command = /^([./#!]?)?(activate|desactivate)$/i;
 handler.admin = true;
 handler.group = true;
 
