@@ -1,26 +1,27 @@
-let handler = async (m, { conn, usedPrefix, command, args }) => {
+let handler = async (m, { conn, command, args, usedPrefix }) => {
   const chat = global.db.data.chats[m.chat];
-  if (!chat) throw `❌ Este comando solo puede usarse en grupos.`;
+  if (!m.isGroup) throw `❌ Este comando solo puede usarse en grupos.`;
 
-  const setting = args[0]?.toLowerCase();
-  if (!setting) {
-    throw `⚠️ Debes especificar qué deseas *${command === 'activate' ? 'activar' : 'desactivate'}*.\n\nUso correcto:\n*${usedPrefix + command} welcome*\n*${usedPrefix + command} bye*`;
+  if (!args.length) {
+    throw `⚠️ Debes escribir qué deseas *${command === 'activate' ? 'activar' : 'desactivar'}*.\n\nEjemplos:\n${usedPrefix + command} welcome\n${usedPrefix + command} welcome bye`;
   }
 
-  const validSettings = ['welcome', 'bye'];
-  if (!validSettings.includes(setting)) {
-    throw `🚫 Opción inválida.\nSolo puedes cambiar:\n• *welcome*\n• *bye*`;
+  const valid = ['welcome', 'bye'];
+  const input = args.map(a => a.toLowerCase()).filter(v => valid.includes(v));
+  if (!input.length) {
+    throw `❌ Opciones inválidas.\nSolo puedes modificar:\n• *welcome*\n• *bye*`;
   }
 
-  const enable = command === 'on';
-  chat[setting] = enable;
+  const enable = /activate/i.test(command);
+  input.forEach(opt => chat[opt] = enable);
 
-  m.reply(`✅ La configuración *${setting.toUpperCase()}* ha sido *${enable ? 'activada' : 'desactivada'}* con éxito 😎`);
+  let estados = input.map(v => `*${v.toUpperCase()}* ➜ ${enable ? '✅ Activado' : '❌ Desactivado'}`).join('\n');
+  m.reply(`📢 Configuración actualizada:\n${estados}`);
 };
 
-handler.help = ['activate <welcome/bye>', 'desactivar <welcome/bye>'];
+handler.help = ['activate <welcome/bye>', 'desactivate <welcome/bye>'];
 handler.tags = ['group', 'config'];
-handler.command = /^(activate|desactivate)$/i;
+handler.command = /^([.]?|)(activate|desactivate)$/i;
 handler.admin = true;
 handler.group = true;
 
