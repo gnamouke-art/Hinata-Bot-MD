@@ -466,7 +466,13 @@ default:
 if (!/[01]/.test(command)) return await conn.reply(m.chat, miniopcion, m, fkontak);
 throw false;
 }
-conn.reply(m.chat, `⚔️  *La Función ${type} Se Ha ${isEnable ? 'Activado' : 'Desactivado'} En Este ${isAll ? 'Bot' : isUser ? '' : 'Chat.'}*`, m, fkontak, )
+conn.reply(m.conn.reply(m.chat, `⚔️  *La Función ${type} Se Ha ${isEnable ? 'Activado' : 'Desactivado'} En Este ${isAll ? 'Bot' : isUser ? '' : 'Chat.'}*`, m, fkontak)
+
+let audioActivado = 'https://files.catbox.moe/kgvefz.mp4'
+let audioDesactivado = 'https://files.catbox.moe/ew0r5l.mp4'
+let audio = isEnable ? audioActivado : audioDesactivado
+
+await conn.sendFile(m.chat, audio, 'opcion.mp4', null, m, true)
 
 }
 handler.help = ['en', 'dis'].map((v) => v + 'able <option>');
