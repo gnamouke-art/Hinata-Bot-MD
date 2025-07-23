@@ -1,8 +1,8 @@
 const handler = async (m, { conn }) => {
   const audios = [
-    'https://o.uguu.se/SFUtNnGE.opus', // Primer audio
-    'https://d.uguu.se/WoubQYAl.opus', // Segundo audio
-    'https://o.uguu.se/SFUtNnGE.opus'  // Tercer audio (puedes cambiarlo)
+    'https://files.cloudkuimages.guru/audios/fuLSWe1T.mp3', // Primer audio
+    'https://files.cloudkuimages.guru/audios/7JPi1XyU.mp3', // Segundo audio
+    'https://files.cloudkuimages.guru/audios/snoK1XUl.mp3'  // Tercer audio (puedes cambiarlo)
   ];
 
   const randomAudio = audios[Math.floor(Math.random() * audios.length)];
