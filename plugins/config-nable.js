@@ -469,13 +469,26 @@ throw false;
 conn.reply(m.chat, `⚔️  *La Función ${type} Se Ha ${isEnable ? 'Activado' : 'Desactivado'} En Este ${isAll ? 'Bot' : isUser ? '' : 'Chat.'}*`, m, fkontak)
 
 try {
+  let texto = isEnable
+    ? '🟢 *Opción activada, prepárate humano... la oscuridad te observa.*'
+    : '🔴 *Opción desactivada, has soltado el poder demoníaco... por ahora.*'
+
   let audioActivado = 'https://files.catbox.moe/kgvefz.mp4'
   let audioDesactivado = 'https://files.catbox.moe/ew0r5l.mp4'
   let audio = isEnable ? audioActivado : audioDesactivado
-  await conn.sendMessage(m.chat, { audio: { url: audio }, mimetype: 'audio/mp4' }, { quoted: m })
+
+  // Mensaje decorado estilo Akeno
+  await conn.sendMessage(m.chat, { text: texto }, { quoted: m })
+
+  // Audio como nota de voz (ptt)
+  await conn.sendMessage(m.chat, {
+    audio: { url: audio },
+    mimetype: 'audio/mp4',
+    ptt: true
+  }, { quoted: m })
 } catch (e) {
-  console.error('No se pudo enviar el audio de activación:', e)
-}
+  console.error('❌ Error al enviar audio demoníaco:', e)
+    }
 }
 handler.help = ['en', 'dis'].map((v) => v + 'able <option>');
 handler.tags = ['nable', 'owner'];
