@@ -20,7 +20,7 @@ const handler = async (m, { isPrems, conn }) => {
   }
 
   // Recompensas aleatorias
-  const img = 'https://h.uguu.se/vANYkZoC.jpg'; // imagen confiable
+  const img = 'https://raw.githubusercontent.com/The-King-Destroy/Adiciones/main/Contenido/1745557947304.jpeg'; // imagen confiable
   const yenes = Math.floor(Math.random() * 30);
   const tokens = Math.floor(Math.random() * 10);
   const coins = Math.floor(Math.random() * 4000);
