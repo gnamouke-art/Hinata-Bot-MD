@@ -1,39 +1,50 @@
-import fetch from 'node-fetch'
+import fg from 'api-dylux';
 
-let handler = async (m, { conn, text }) => {
-  let url = text?.trim() || m.text?.trim()
-
-  // Detectar si es solo .tiktok, tiktok o link sin contexto
-  if (!url || !url.match(/https?:\/\/(?:www\.)?(?:vt|tiktok)\.com\/[^\s]+/i)) {
-    return conn.reply(m.chat, `🎀 *Mami dime qué quieres*\n\n💌 Manda el link del video para descargar, bebé… no soy adivina 😏`, m)
-  }
-
+const handler = async (m, { conn, text, args, usedPrefix, command }) => {
   try {
-    let res = await fetch(`https://api.lolhuman.xyz/api/tiktok?apikey=GataDios&url=${url}`)
-    let json = await res.json()
+    let link = args[0] || text?.trim();
 
-    if (!json.result?.video?.[0]) throw '❌ No se pudo descargar el video.'
+    if (!link || !/(?:https?:\/\/)?(?:www\.)?(vt|tiktok)\.com\/[^\s]+/i.test(link)) {
+      return conn.reply(m.chat, `💌 Manda el link del video para descargar, bebé… no soy adivina 😏\n\n📌 *Ejemplo:* ${usedPrefix}${command} https://vm.tiktok.com/ZMreHF2dC/`, m);
+    }
 
-    let caption = `✨ *Descarga TikTok Exitosa*\n\n👤 *Usuario:* ${json.result.author?.username || '-'}\n📝 *Descripción:* ${json.result.caption || 'Sin descripción'}\n\n💖 Desarrollado por 🐉𝙉𝙚𝙤𝙏𝙤𝙆𝙮𝙤 𝘽𝙚𝙖𝙩𝙨🐲 & light Yagami`
+    m.react('⌛');
 
-    await conn.sendFile(m.chat, json.result.video[0], 'tiktok.mp4', caption, m)
+    let data = await fg.tiktok(link);
+    let { title, play, duration } = data.result;
+    let { nickname } = data.result.author;
+
+    let caption = `
+🎶 *Descarga de TikTok completada*
+
+◦ 👤 *Autor:* ${nickname}
+◦ 📌 *Título:* ${title}
+◦ ⏱️ *Duración:* ${duration}
+`.trim();
+
+    await conn.sendFile(m.chat, play, 'tiktok.mp4', caption, m);
+    m.react('✅');
 
   } catch (e) {
-    console.error(e)
-    return conn.reply(m.chat, '⚠️ Ocurrió un error al procesar el video, mi cielo 💔', m)
+    m.react('❌');
+    return conn.reply(m.chat, `❌ *Error al descargar:* ${e.message}`, m);
   }
-}
+};
 
-// Funciona con y sin prefix, incluso si solo mandan el link
-handler.command = [
-  /^\.?tiktok$/i,
-  /^tiktok\s+(https?:\/\/[^\s]+)/i,
-  /https?:\/\/(?:www\.)?(?:vt|tiktok)\.com\/[^\s]+/i
-]
-handler.customPrefix = /^(tiktok)$/i
-handler.exp = 30
-handler.limit = true
-handler.register = true
-handler.group = false
+handler.customPrefix = /^(tiktok)$/i;
+handler.command = /^\.?tiktok$/i;
 
-export default handler
+handler.all = async function (m, { conn }) {
+  let link = m.text?.trim();
+  if (/https?:\/\/(?:www\.)?(vt|tiktok)\.com\/[^\s]+/i.test(link)) {
+    m.text = link;
+    return handler(m, { conn, text: link });
+  }
+};
+
+handler.help = ["tiktok"];
+handler.tags = ["downloader"];
+handler.limit = true;
+handler.register = true;
+
+export default handler;
