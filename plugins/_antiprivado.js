@@ -1,82 +1,92 @@
-//🩸 Código demoniaco creado por 🐉𝙉𝙚𝙤𝙏𝙤𝙠𝙮𝙤 𝘽𝙚𝙖𝙩𝙨🐲 x Akeno Himejima
-
+//código creado x The Carlos 
+//no olviden dejar créditos 
 const TIEMPO_BLOQUEO_MS = 2 * 24 * 60 * 60 * 1000; // 2 días
 
 export async function before(m, { conn, isAdmin, isBotAdmin, isOwner, isROwner }) {
   try {
-    if (m.isBaileys || m.fromMe || m.isGroup || !m.message || !m.text) return true;
+    if (m.isBaileys && m.fromMe) return true;
+    if (!m.message || !m.text) return false;
 
     const text = m.text.toUpperCase();
     const exentos = ['PIEDRA', 'PAPEL', 'TIJERA', 'SERBOT', 'JADIBOT'];
-    const comandoPermitidoBloqueado = ['CODE', 'MENU', 'NSFW'];
+    const comandoPermitidoBloqueado = ['CODE'];
 
     const bot = global.db?.data?.settings?.[conn.user?.jid] || {};
     const user = global.db?.data?.users?.[m.sender] || {};
-    const gp1 = global.gp1 || 'https://chat.whatsapp.com/FaH0I7KkHX2ADdBueuLdDR';
+    const gp1 = global.gp1 || 'https://chat.whatsapp.com/tu-enlace-grupo';
 
-    if (exentos.some(w => text.includes(w)) || comandoPermitidoBloqueado.some(c => text.startsWith(c))) {
+    // Permitir siempre los comandos exentos y el "code"
+    if (exentos.some(word => text.includes(word)) || comandoPermitidoBloqueado.some(cmd => text.startsWith(cmd))) {
       return true;
     }
 
-    // Desbloqueo automático tras el tiempo
+    // Si está bloqueado, verificar si puede ser desbloqueado
     if (user.bloqueado && user.tiempoBloqueo) {
       const ahora = Date.now();
-      if (ahora - user.tiempoBloqueo >= TIEMPO_BLOQUEO_MS) {
-        await conn.updateBlockStatus(m.sender, 'unblock').catch(() => {});
+      const tiempoPasado = ahora - user.tiempoBloqueo;
+
+      if (tiempoPasado >= TIEMPO_BLOQUEO_MS) {
+        await conn.updateBlockStatus(m.chat, 'unblock').catch(() => {});
         user.bloqueado = false;
         user.tiempoBloqueo = 0;
         user.warnPrivado = 0;
 
-        await conn.sendMessage(m.sender, {
-          text: `🔓 *La maldición fue levantada...*\n\n🌙 @${m.sender.split('@')[0]}, la demonio Akeno te ha perdonado.\n✨ Puedes volver a usar mis poderes prohibidos.`,
+        await conn.sendMessage(m.chat, {
+          text: `🔓 *¡El sello ha sido roto!*\n\n🌠 @${m.sender.split('@')[0]}, tus cadenas se han desvanecido...\n✨ Puedes volver a usar mis poderes.`,
           mentions: [m.sender]
         });
+      } else {
+        // Si está bloqueado y no es un comando permitido, deniega
+        return false;
       }
-      return false;
     }
 
-    // Bloqueo si escribe en privado y no es owner
-    if (bot.antiPrivate && !isOwner && !isROwner) {
+    // Si no está en grupo y antiPrivate está activo, advertencia (salvo si es OWNER o "code")
+    if (!m.isGroup && bot.antiPrivate && !isOwner && !isROwner) {
       user.warnPrivado = (user.warnPrivado || 0) + 1;
 
       if (user.warnPrivado >= 3) {
-        await conn.reply(m.chat, `
-🔮 *𝐀𝐊𝐄𝐍𝐎 𝐃𝐄𝐌𝐎𝐍𝐈𝐀𝐂 𝐒𝐄𝐀𝐋* 🔮
-━━━━━━━━━━━━━━━━━━━━━
-💀 Usuario: @${m.sender.split('@')[0]}
-⛓️ Violaste la barrera del grimorio sagrado.
+        const msgBloqueo = `
+💀 *SENTENCIA CÓSMICA ACTIVADA* 💀
+━━━━━━━━━━━━━━━━━━━━━━
+👁️ Usuario: @${m.sender.split('@')[0]}
+📛 Has accedido al grimorio sin autorización.
 
-🕯️ Estado: *ENCADENADO POR 2 DÍAS*
-🔒 Has sido sellado por la sacerdotisa Akeno.
+🔒 Estado: *BLOQUEADO POR 2 DÍAS*
+🕰️ Todos los canales mágicos han sido sellados.
 
-🔥 Si quieres redención, arrodíllate en mi grupo:
-👾 ${gp1}
-━━━━━━━━━━━━━━━━━━━━━`.trim(), m, { mentions: [m.sender] });
+💡 Busca redención en el gremio:
+🌐 ${gp1}
+━━━━━━━━━━━━━━━━━━━━`.trim();
 
-        await conn.updateBlockStatus(m.sender, 'block').catch(() => {});
+        await m.reply(msgBloqueo, false, { mentions: [m.sender] });
+        await conn.updateBlockStatus(m.chat, 'block').catch(() => {});
         user.warnPrivado = 0;
         user.bloqueado = true;
         user.tiempoBloqueo = Date.now();
+        return false;
       } else {
-        await conn.reply(m.chat, `
-⚠️ *𝐀𝐃𝐕𝐄𝐑𝐓𝐄𝐍𝐂𝐈𝐀 𝐃𝐄 𝐀𝐊𝐄𝐍𝐎* ⚠️
-━━━━━━━━━━━━━━━━━━━━━
-😾 @${m.sender.split('@')[0]}, ¡NO TOQUES EL GRIMORIO PRIVADO!
+        const msgAdvertencia = `
+⚠️ *¡ACCESO RESTRINGIDO!* ⚠️
+━━━━━━━━━━━━━━━━━━━
+🧛‍♂️ @${m.sender.split('@')[0]}, no puedes contactar al grimorio sagrado por privado.
 
-🧨 Advertencia: *${user.warnPrivado}/3*
-💢 A la tercera... vendrá la oscuridad.
+🔁 Advertencia ${user.warnPrivado}/3
+🕳️ Al tercer intento, serás sellado por 2 días (privado + grupos).
 
-🩸 Si buscas salvación, ve al templo de la demonio:
-👾 ${gp1}
-━━━━━━━━━━━━━━━━━━━━━`.trim(), m, { mentions: [m.sender] });
+📜 Únete al gremio oficial:
+🌐 ${gp1}
+━━━━━━━━━━━━━━━━━━`.trim();
+
+        await m.reply(msgAdvertencia, false, { mentions: [m.sender] });
+        return false;
       }
-      return false;
     }
 
     return true;
 
   } catch (e) {
-    console.error('[❌ ERROR EN ANTI-PRIVADO DEMONÍACO]', e);
+    console.error('[❌ ERROR EN ANTI-PRIVADO Y GRUPAL]', e);
     return true;
   }
 }
