@@ -1,35 +1,39 @@
 import fetch from 'node-fetch'
 
-let handler = async (m, { conn, args, usedPrefix, command, text }) => {
-  let url = text.trim()
-  if (!url) throw `📌 *Ejemplo de uso:*\n${usedPrefix}${command} https://www.tiktok.com/@neotokyo/video/12345`
-  
-  let match = url.match(/(https?:\/\/(www\.|vt\.)?tiktok\.com\/[^\s]+)/i)
-  if (!match) throw '❌ *Enlace inválido de TikTok.*'
+let handler = async (m, { conn, text }) => {
+  let url = text?.trim() || m.text?.trim()
+
+  // Detectar si es solo .tiktok, tiktok o link sin contexto
+  if (!url || !url.match(/https?:\/\/(?:www\.)?(?:vt|tiktok)\.com\/[^\s]+/i)) {
+    return conn.reply(m.chat, `🎀 *Mami dime qué quieres*\n\n💌 Manda el link del video para descargar, bebé… no soy adivina 😏`, m)
+  }
 
   try {
-    let res = await fetch(`https://api.lolhuman.xyz/api/tiktok?apikey=GataDios&url=${match[1]}`)
+    let res = await fetch(`https://api.lolhuman.xyz/api/tiktok?apikey=GataDios&url=${url}`)
     let json = await res.json()
 
-    if (!json.result?.video || !json.result?.video?.[0]) throw '⚠️ No se pudo obtener el video.'
+    if (!json.result?.video?.[0]) throw '❌ No se pudo descargar el video.'
 
-    let cap = `🎵 *Descarga exitosa*\n\n🌐 *Usuario:* ${json.result.author?.username || '-'}\n📝 *Descripción:* ${json.result.caption || 'Sin descripción'}\n\n_Desarrollado por 🐉𝙉𝙚𝙤𝙏𝙤𝙆𝙮𝙤 𝘽𝙚𝙖𝙩𝙨🐲 & light Yagami_`
-    
-    await conn.sendFile(m.chat, json.result.video[0], 'tiktok.mp4', cap, m)
-    
+    let caption = `✨ *Descarga TikTok Exitosa*\n\n👤 *Usuario:* ${json.result.author?.username || '-'}\n📝 *Descripción:* ${json.result.caption || 'Sin descripción'}\n\n💖 Desarrollado por 🐉𝙉𝙚𝙤𝙏𝙤𝙆𝙮𝙤 𝘽𝙚𝙖𝙩𝙨🐲 & light Yagami`
+
+    await conn.sendFile(m.chat, json.result.video[0], 'tiktok.mp4', caption, m)
+
   } catch (e) {
-    console.error('[ERROR TIKTOK]', e)
-    throw '🚫 Error al procesar el video.'
+    console.error(e)
+    return conn.reply(m.chat, '⚠️ Ocurrió un error al procesar el video, mi cielo 💔', m)
   }
 }
 
-handler.help = ['tiktok'].map(v => v + ' <url>')
-handler.tags = ['downloader']
+// Funciona con y sin prefix, incluso si solo mandan el link
 handler.command = [
-  /^((tt|tiktok)(dl)?|https:\/\/(?:www\.|vt\.)?tiktok\.com)/i,
-  /^tiktok\s+(https?:\/\/[^\s]+)/i
+  /^\.?tiktok$/i,
+  /^tiktok\s+(https?:\/\/[^\s]+)/i,
+  /https?:\/\/(?:www\.)?(?:vt|tiktok)\.com\/[^\s]+/i
 ]
+handler.customPrefix = /^(tiktok)$/i
+handler.exp = 30
 handler.limit = true
 handler.register = true
+handler.group = false
 
 export default handler
