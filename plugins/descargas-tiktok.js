@@ -1,38 +1,68 @@
-import fg from 'api-dylux';
+import fetch from 'node-fetch';
 
-const handler = async (m, { conn, text, args, usedPrefix, command }) => {
+const handler = async (m, { conn, text, command, usedPrefix }) => {
+    if (!text) {
+        return conn.reply(m.chat, `❌ Por favor proporciona un enlace válido de TikTok.\n\nEjemplo: *${usedPrefix + command} https://www.tiktok.com/@Neotokio/hinata/1234*`, m);
+    }
+
     try {
-        if (!args[0]) {
-            return conn.reply(m.chat, `🥷 Debes ingresar un enlace de TikTok.\n\n📌 *Ejemplo:* ${usedPrefix + command} https://vm.tiktok.com/ZMreHF2dC/`, m);
+        const apiUrl = `https://api.dorratz.com/v2/tiktok-dl?url=${encodeURIComponent(text)}`;
+        const response = await fetch(apiUrl);
+        const result = await response.json();
+
+        if (!result || !result.status || !result.data || !result.data.media || !result.data.media.org) {
+            return conn.reply(m.chat, '❌ No se pudo descargar el video. Verifica el enlace e intenta nuevamente.', m);
         }
 
-        if (!/(?:https:?\/{2})?(?:w{3}|vm|vt|t)?\.?tiktok.com\/([^\s&]+)/gi.test(text)) {
-            return conn.reply(m.chat, `❎ Enlace de TikTok inválido.`, m);
-        }
+        const videoUrl = result.data.media.org;
 
-        m.react('⌛');
+        // Obtener información adicional
+        const author = result.data.author?.nickname || 'Desconocido';
+        const username = result.data.author?.username || 'Desconocido';
+        const likes = result.data.like || '0';
+        const shares = result.data.share || '0';
+        const comments = result.data.comment || '0';
 
-        let data = await fg.tiktok(`${args[0]}`);
-        let { title, play, duration } = data.result;
-        let { nickname } = data.result.author;
+        const caption = `
+🎵 *TIKTOK DESCARGADO*
 
-        let caption = `
-  ⚔️ TikTok 
+👤 Autor: ${author} (@${username})
+👍 Me gusta: ${likes}
+🔄 Compartido: ${shares}
+💬 Comentarios: ${comments}
 
-  ◦ 👤 *Autor:* ${nickname}
-  ◦ 📌 *Título:* ${title}
-  ◦ ⏱️ *Duración:* ${duration}`;
+📌 Usa los botones para más opciones:
+`;
 
-        await conn.sendFile(m.chat, play, `tiktok.mp4`, caption, m);
+        const buttons = [
+            {
+                buttonId: `${usedPrefix}tiktokmp3 ${text}`,
+                buttonText: { displayText: '🎧 MP3' },
+                type: 1
+            },
+            {
+                buttonId: `${usedPrefix}menu`,
+                buttonText: { displayText: '📋 Menú' },
+                type: 1
+            }
+        ];
 
-        m.react('✅');
-    } catch (e) {
-        return conn.reply(m.chat, `❌ *Error:* ${e.message}`, m);
+        await conn.sendMessage(m.chat, {
+            video: { url: videoUrl },
+            caption,
+            buttons,
+            footer: 'Tiktok Downloader by 🐉NeoTokyo Beats🐲',
+            headerType: 4
+        }, { quoted: m });
+
+    } catch (error) {
+        console.error(error);
+        conn.reply(m.chat, '❌ Ocurrió un error al intentar descargar el video.', m);
     }
 };
 
-handler.help = ["tiktok"];
-handler.tags = ["dl"];
-handler.command = ["tt", "tiktok", "ttdl"];
+handler.help = ['tiktok <enlace>', 'tt <enlace>'];
+handler.tags = ['downloader'];
+handler.command = /^(tt|tiktok)$/i;
 
 export default handler;
