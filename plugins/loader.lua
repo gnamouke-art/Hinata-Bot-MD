@@ -1,4 +1,4 @@
-
+x
 local main = Instance.new("ScreenGui")
 local Frame = Instance.new("Frame")
 local up = Instance.new("TextButton")
@@ -30,7 +30,7 @@ up.Size = UDim2.new(0, 44, 0, 28)
 up.Font = Enum.Font.SourceSans
 up.Text = "UP"
 up.TextColor3 = Color3.fromRGB(0, 0, 0)
-up.TextSize = 199.000
+up.TextSize = 14.000
 
 down.Name = "down"
 down.Parent = Frame
@@ -40,7 +40,7 @@ down.Size = UDim2.new(0, 44, 0, 28)
 down.Font = Enum.Font.SourceSans
 down.Text = "DOWN"
 down.TextColor3 = Color3.fromRGB(0, 0, 0)
-down.TextSize = 190.000
+down.TextSize = 14.000
 
 onof.Name = "onof"
 onof.Parent = Frame
