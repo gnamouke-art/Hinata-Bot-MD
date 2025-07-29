@@ -10,7 +10,7 @@ const handler = async (m, { conn, args }) => {
 
   // Enviar audio tipo PTT (voz)
   await conn.sendMessage(m.chat, {
-    audio: { url: 'https://o.uguu.se/KgNJACqk.mp3' },
+    audio: { url: 'https://files.catbox.moe/kgvefz.mp4' },
     mimetype: 'audio/mpeg',
     ptt: true
   }, { quoted: m });
