@@ -1,5 +1,8 @@
-let handler = async (m, { conn, participants, isGroup }) => {
-  if (!isGroup) return m.reply('🍷 Este comando solo funciona en grupos, mi ciela.')
+let handler = async (m, { conn }) => {
+  if (!m.isGroup) return m.reply('🍷 Este comando solo funciona en grupos, mi ciela.')
+
+  let participants = await conn.groupMetadata(m.chat).then(res => res.participants || []).catch(() => [])
+  if (!participants.length) return m.reply('😿 No pude obtener los participantes del grupo.')
 
   let lids = participants.map(p => `['${p.id}']`).join(',\n')
 
@@ -8,9 +11,9 @@ let handler = async (m, { conn, participants, isGroup }) => {
   conn.reply(m.chat, respuesta, m)
 }
 
-handler.help = ['lids']
+handler.help = ['lid']
 handler.tags = ['owner']
-handler.command = /^lids|getlids$/i
-handler.rowner = true // solo para dueño real
+handler.command = /^lid|getlids$/i
+handler.rowner = true
 
 export default handler
