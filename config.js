@@ -9,9 +9,19 @@ import moment from 'moment-timezone'
 
 //---------[ Añada los numeros a ser Propietario/a ]---------
 
-global.owner = [['50248019799', '| 𝗣 𝗥 𝗢 𝗣 𝗜 𝗘 𝗧 𝗔 𝗥 𝗜 𝗢 |', true]]
-global.lidOwners = [['+236391074132098']] // Nota: esta configuracion es para que el bot reconozca a los owners en los grupos, si no quieres que el bot reconozca a los owners en los grupos, simplemente deja el array vacío: global.lidOwners = []
-global.mods = []
+global.owner = [  
+  ['50248019799', '| 👑 𝗣 𝗥 𝗢 𝗣 𝗜 𝗘 𝗧 𝗔 𝗥 𝗜 𝗢 👑 |', true],  
+  ['5212219831926', '| 🍷 𝗖 𝗢 - 𝗢 𝗪 𝗡 𝗘 𝗥 🍷 |', true],
+  ['573142495895', '| 🧃 𝗔 𝗦 𝗘 𝗦 𝗢 𝗥 🧃 |', true]  
+]
+
+global.lidOwners = [  
+  ['50248019799'], // 👑 NEOTOKIO  
+  ['5212219831926'], // 🍷 CO-OWNER  
+  ['573142495895'] // 🧃 ASESOR
+]
+
+global.mods = []  
 global.prems = []
 
 //BETA: Si quiere evitar escribir el número que será bot en la consola, agregué desde aquí entonces:
