@@ -1,17 +1,16 @@
-let handler = async (m, { conn, args, usedPrefix, command }) => {
-  let user = m.quoted ? m.quoted.sender : m.mentionedJid[0] ? m.mentionedJid[0] : m.sender
-  let tag = '@' + user.split('@')[0]
-  let jid = user
-  let respuesta = `🍷 *LID de ${tag}*\n\n*${jid}*`
+let handler = async (m, { conn, participants, isGroup }) => {
+  if (!isGroup) return m.reply('🍷 Este comando solo funciona en grupos, mi ciela.')
 
-  await conn.reply(m.chat, respuesta, m, {
-    mentions: [user]
-  })
+  let lids = participants.map(p => `['${p.id}']`).join(',\n')
+
+  let respuesta = `🍷 *Lista de LID de este grupo:*\n\n${lids}\n\n🧠 Puedes copiar y pegar esto en:\n*global.lidOwners = [ ... ]*`
+
+  conn.reply(m.chat, respuesta, m)
 }
 
-handler.help = ['lid', 'getlid']
+handler.help = ['lids']
 handler.tags = ['owner']
-handler.command = /^lid|getlid$/i
-handler.rowner = true // solo owner real puede usarlo
+handler.command = /^lids|getlids$/i
+handler.rowner = true // solo para dueño real
 
 export default handler
