@@ -1,49 +1,102 @@
-import fs from 'fs';
-import fetch from 'node-fetch';
-import path from 'path';
-import FormData from 'form-data';
-import mime from 'mime-types';
+//▪CÓDIGO BY DEVBRAYAN PRROS XD▪
+//▪ROXY BOT MD▪
+
+import { writeFile, unlink, readFile } from 'fs/promises'
+import { join } from 'path'
+import { fileTypeFromBuffer } from 'file-type'
 
 let handler = async (m, { conn }) => {
-  const q = m.quoted || m;
-
-  if (!q || !(q.audio || /audio/.test(q.mimetype))) {
-    return m.reply('🎧 Responde a un *audio* para subirlo.\n\nEjemplo: .uploadaudio');
-  }
+  await conn.sendMessage(m.chat, { react: { text: '☁️', key: m.key } })
 
   try {
-    const buffer = await q.download?.() || await conn.downloadMediaMessage(q);
-    const extension = mime.extension(q.mimetype) || 'mp3';
-    const filename = `audio_${Date.now()}.${extension}`;
-    const filepath = `./tmp/${filename}`;
-    fs.writeFileSync(filepath, buffer);
+    const q = m.quoted ? m.quoted : m
+    const mime = (q.msg || q).mimetype || ''
+    if (!mime) return m.reply('🌧️ *Responde a un archivo o media para subirlo.*')
 
-    const form = new FormData();
-    form.append('file', fs.createReadStream(filepath), filename);
+    const media = await q.download()
+    if (!media) return m.reply('⛅ *Error al descargar el archivo.*')
 
-    const res = await fetch('https://uguu.se/upload.php', {
-      method: 'POST',
-      body: form,
-      headers: form.getHeaders()
-    });
+    const uploads = []
 
-    const json = await res.json();
-    fs.unlinkSync(filepath);
+    const up1 = await uploaderCloudStack(media).catch(() => null)
+    if (up1) uploads.push({ name: '☁️ CloudStack', url: up1 })
 
-    if (!json.success || !json.files || !json.files[0].url) {
-      throw '❌ No se pudo subir el audio.';
+    const up2 = await uploaderCloudGuru(media).catch(() => null)
+    if (up2) uploads.push({ name: '🌀 CloudGuru', url: up2 })
+
+    const up3 = await uploaderCloudCom(media).catch(() => null)
+    if (up3) uploads.push({ name: '🌐 CloudImages', url: up3 })
+
+    if (uploads.length === 0) throw '⛈️ *No se pudo subir a ningún servidor. Intenta de nuevo más tarde.*'
+
+    let texto = `☁️ *Resultado de la Subida*\n*━━━━━━━━━━━━━━━━━━━━*\n\n`
+    for (const up of uploads) {
+      texto += `*${up.name}*\n🔗 ${up.url}\n\n`
     }
 
-    const url = json.files[0].url;
-    await m.reply(`✅ Audio subido con éxito:\n${url}`);
+    await conn.sendMessage(m.chat, {
+      text: texto.trim(),
+      contextInfo: {
+        externalAdReply: {
+          title: 'Uploader Tools ☁️',
+          body: 'Enlaces generados desde servidores externos',
+          thumbnailUrl: uploads[0]?.url,
+          mediaType: 1,
+          renderLargerThumbnail: true
+        }
+      }
+    }, { quoted: m })
+
   } catch (e) {
-    console.error(e);
-    m.reply('❌ No se pudo subir el audio. Asegúrate de que no supere los 100 MB.');
+    await conn.sendMessage(m.chat, {
+      text: typeof e === 'string' ? e : '⛈️ *Ocurrió un error inesperado durante la subida.*',
+      quoted: m
+    })
+  } finally {
+    await conn.sendMessage(m.chat, { react: { text: '', key: m.key } })
   }
-};
+}
 
-handler.help = ['uploadaudio'];
-handler.tags = ['tools'];
-handler.command = /^uploadaudio$/i;
+handler.help = ['audio']
+handler.tags = ['tools']
+handler.command = ['tóurl', 'url', 'audio']
+handler.limit = true
+handler.register = true
 
-export default handler;
+export default handler
+
+// Función genérica para subir el buffer a un servidor
+async function uploadTo(url, buffer) {
+  const { ext, mime } = await fileTypeFromBuffer(buffer) || {}
+  if (!ext || !mime) throw new Error('Formato de archivo no reconocido.')
+
+  const tempPath = join('./tmp', `upload.${ext}`)
+  await writeFile(tempPath, buffer)
+  const fileData = await readFile(tempPath)
+
+  const form = new FormData()
+  form.append('file', new File([fileData], `upload.${ext}`, { type: mime }))
+
+  try {
+    const res = await fetch(url, { method: 'POST', body: form })
+    const json = await res.json()
+    await unlink(tempPath).catch(() => null)
+
+    if (json?.status !== 'success' || !json?.data?.url) throw new Error('Error al subir el archivo.')
+    return json.data.url
+  } catch (err) {
+    console.error(`Error subiendo a (${url}):`, err)
+    await unlink(tempPath).catch(() => null)
+    return null
+  }
+}
+
+// URLs de los servicios de subida
+const uploaderCloudStack = buffer =>
+  uploadTo('https://phpstack-1487948-5667813.cloudwaysapps.com/upload.php', buffer)
+
+const uploaderCloudGuru = buffer =>
+  uploadTo('https://cloudkuimages.guru/upload.php', buffer)
+
+const uploaderCloudCom = buffer =>
+  uploadTo('https://cloudkuimages.com/upload.php', buffer)
