@@ -54,7 +54,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
       const $ = cheerio.load(data);
       const titulo = $('title').text() || 'Sin título';
       let textoPlano = $('body').text().replace(/\s+/g, ' ').trim().slice(0, 500);
-      await m.reply(`🌐 Título del sitio: ${titulo}\n\n📄 Fragmento:\n${textoPlano}...\n\n🔍 No se detectó tipo multimedia, puede ser una web.`);
+      await m.reply(`🌐 Título del sitio: ${titulo}\n\n📄 Fragmento:\n${textoPlano}...\n\n🔍 No se detectó archivo multimedia, puede ser una página web.`);
     }
 
   } catch (e) {
@@ -65,6 +65,6 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
 
 handler.help = ['webget <url>'];
 handler.tags = ['tools', 'downloader'];
-handler.command = /^webgett$/i;
+handler.command = /^webget$/i;
 
 export default handler;
