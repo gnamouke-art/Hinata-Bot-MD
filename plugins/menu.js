@@ -1,6 +1,6 @@
 import { xpRange } from '../lib/levelling.js'
 
-const textAkeno = (text) => {
+const textHinata = (text) => {
   const charset = {
     a: 'ᴀ', b: 'ʙ', c: 'ᴄ', d: 'ᴅ', e: 'ᴇ', f: 'ꜰ', g: 'ɢ',
     h: 'ʜ', i: 'ɪ', j: 'ᴊ', k: 'ᴋ', l: 'ʟ', m: 'ᴍ', n: 'ɴ',
@@ -11,39 +11,39 @@ const textAkeno = (text) => {
 }
 
 let tags = {
-  'main': textAkeno('sistema'),
-  'group': textAkeno('grupos'),
-  'serbot': textAkeno('sub bots'),
-  'owner': textAkeno('owner'),
-  'tools': textAkeno('herramientas'),
-  'fun': textAkeno('diversión'),
-  'rpg': textAkeno('rpg'),
-  'nsfw': textAkeno('nsfw'),
-  'games': textAkeno('juegos'),
-  'downloader': textAkeno('descargas'),
-  'search': textAkeno('buscador'),
-  'sticker': textAkeno('stickers')
+  'main': textHinata('sistema'),
+  'group': textHinata('grupos'),
+  'serbot': textHinata('sub bots'),
+  'owner': textHinata('owner'),
+  'tools': textHinata('herramientas'),
+  'fun': textHinata('diversión'),
+  'rpg': textHinata('rpg'),
+  'nsfw': textHinata('nsfw'),
+  'games': textHinata('juegos'),
+  'downloader': textHinata('descargas'),
+  'search': textHinata('buscador'),
+  'sticker': textHinata('stickers')
 }
 
 const defaultMenu = {
-  before: `💋 *Bienvenido al Dominio Oscuro de Akeno Himejima...*
-⚡ Soy tu guía en esta dimensión demoníaca.
-🔮 Usuario: %name
-🔪 Nivel: %level | ⚡ XP: %exp / %maxexp
-🕯 Usuarios registrados: %totalreg
-🖤 Estado: ONLINE
-⏳ Tiempo activo: %muptime
+  before: `🍓 *Bienvenido al mundo travieso de 𝙃𝙞𝙣𝙖𝙩𝙖 𝘽𝙤𝙩...*
+👑 Soy tu diosa virtual, ¿quieres jugar conmigo, amorcito?
 
-───────────────
-✨ *Mis comandos están listos...*  
-¿Te atreves a jugar conmigo, amor~?
+✨ ᴜꜱᴜᴀʀɪᴏ: %name
+🔮 ɴɪᴠᴇʟ: %level | ⚡ ᴇxᴘ: %exp / %maxexp
+📋 ʀᴇɢɪꜱᴛʀᴏꜱ: %totalreg
+💖 ᴇꜱᴛᴀᴅᴏ: ᴏɴʟɪɴᴇ
+⏳ ᴛɪᴇᴍᴘᴏ ᴀᴄᴛɪᴠᴏ: %muptime
+
+─────── 𝐌𝐄𝐍𝐔 𝐇𝐈𝐍𝐀𝐓𝐀 ───────
+🔞 *Tengo comandos traviesos, peligrosos y muy calientes...*
+¿Te atreves a usarlos, papito? 😈
 %readmore`.trim(),
 
-  header: '\n╭──〔 🔥 %category 〕──╮',
-  body: '│ 💠 %cmd\n',
-  footer: '╰────────────────╯',
-  after: `\n🔮 *Dominio ejecutado con éxito, amor...*  
-_Si quieres más poder, solo pídelo con respeto 😈_`
+  header: '\n╭━━〔 💋 %category 〕━━⬣',
+  body: '│ ➤ %cmd\n',
+  footer: '╰━━━━━━━━━━━━⬣',
+  after: `\n💋 *Menú ejecutado, mi amor...*\n_¿Quieres más poder? Solo pídelo con gemidos 😏_`
 }
 
 let handler = async (m, { conn, usedPrefix: _p }) => {
@@ -66,7 +66,7 @@ let handler = async (m, { conn, usedPrefix: _p }) => {
 
     for (let plugin of help) {
       for (let t of plugin.tags) {
-        if (!(t in tags) && t) tags[t] = textAkeno(t)
+        if (!(t in tags) && t) tags[t] = textHinata(t)
       }
     }
 
@@ -106,11 +106,11 @@ let handler = async (m, { conn, usedPrefix: _p }) => {
     ]
     const selected = videos[Math.floor(Math.random() * videos.length)]
 
-    await conn.sendFile(m.chat, selected, 'akeno-menu.mp4', text, m)
+    await conn.sendFile(m.chat, selected, 'hinata-menu.mp4', text, m)
 
   } catch (e) {
     console.error(e)
-    conn.reply(m.chat, '❎ Ups... fallé como tu diosa demoníaca 💔', m)
+    conn.reply(m.chat, '❎ *Oops... fallé como tu diosa virtual 💔 Hinata necesita mimos.*', m)
   }
 }
 
