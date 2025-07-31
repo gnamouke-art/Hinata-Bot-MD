@@ -1,73 +1,86 @@
-// 💖 Comandos .fantasmas y .kickfantasmas – Hinata Bot 💋
-// 🛠️ Creado por TOKIO5025 – github.com/TOKIO5025
+// 💋 Comandos .fantasmas y .kickfantasmas – Hinata Bot 😈
+// 🛠️ Desarrollado por 🐉𝙉𝙚𝙤𝙏𝙤𝙆𝙮𝙤 𝘽𝙚𝙖𝙩𝙨🐲
 
 let handler = async (m, { conn, participants, isAdmin, isBotAdmin, command }) => {
-  if (!m.isGroup) throw '🌸 Este comando solo funciona en grupos, tontito~ 💞';
+  if (!m.isGroup) throw '🚫 Este comando es pa’ grupos, mi amor, no estés de solito 😏';
 
-  const mensajes = global.db.data?.messages || {};
+  global.db.data.messages ??= {};
+  global.db.data.messages[m.chat] ??= {};
+
+  const mensajes = global.db.data.messages;
   const miembros = participants.map(p => p.id).filter(id => id !== conn.user.jid);
-  const activos = miembros.filter(id => mensajes[m.chat] && mensajes[m.chat][id]);
+  const activos = miembros.filter(id => mensajes[m.chat][id]);
   const fantasmas = miembros.filter(id => !activos.includes(id));
 
-  // 📌 SI NO ES ADMIN
   if (!isAdmin) {
-    await conn.sendMessage(m.chat, { react: { text: '😝', key: m.key }});
-    return conn.reply(m.chat, `╭─💋 *Hinata-chan dice...* 💋─➤
+    await conn.sendMessage(m.chat, { react: { text: '😜', key: m.key }});
+    return conn.reply(m.chat, `╭── 💋 *Hinata Bot la más rica* 💋
 │
-│  🥺 Unichan... este comando es solo
-│  para mis bellos *administradores* 💖
+│  ¿Quién te dio permiso pa’ usar eso, eh? 🙄
+│  Solo mis admins sabrosos pueden usar
+│  este comando, así que a mirar y callar 😘
 │
-│  Anda, quédate aquí y mírame mimarte~ 😚
-╰─────────────🌸`, m);
+╰─────────────💄`, m);
   }
 
-  // 📌 SI ES .fantasmas
   if (command === 'fantasmas') {
     await conn.sendMessage(m.chat, { react: { text: '👻', key: m.key }});
 
     if (fantasmas.length === 0) {
-      return m.reply(`╭─🌟 *Hinata Bot* 🌟─➤
+      return m.reply(`╭── 🌟 *Hinata Bot* 🌟
 │
-│  UwU~ ¡Todos han hablado! 💕
-│  Qué grupo tan activo y lindo~ ✨
-╰─────────────🌸`);
+│  Aaawww... todes han hablado 💋
+│  Qué grupo más cachondo y participativo 😏
+│
+╰─────────────✨`);
     }
 
-    let texto = `╭──🌙 *Fantasmitas Detectados* 👻\n│\n│  Awww... estos unis no han dicho nada~ 🥺\n│  ¿Les doy un abracito para que hablen? 😳💗\n│\n`;
+    let texto = `╭── 🔥 *Fantasmas detectados* 👻
+│
+│  Miren estas almitas perdidas 👀
+│  Bien calladitas, como si les metiera miedo~ 🤭
+│  ¡Hablen o las saco a nalgadas! 😈🍑
+│
+`;
 
     for (let user of fantasmas) {
       texto += `│  ✦ @${user.split('@')[0]}\n`;
     }
 
-    texto += `│\n╰─✨ Total: *${fantasmas.length}* fantasmitas calladitos~ 💫`;
+    texto += `│
+╰─💅 Total de muditos: *${fantasmas.length}* 🧂`;
 
     return conn.sendMessage(m.chat, { text: texto, mentions: fantasmas }, { quoted: m });
   }
 
-  // 📌 SI ES .kickfantasmas
   if (command === 'kickfantasmas') {
     if (!isBotAdmin) {
-      return m.reply('🙁 Hinata no puede sacar a nadie si no soy admin del grupo, uniii~ 😢');
+      return m.reply('🛑 ¡Ni loca los saco si no soy admin! Hazme admin primero, baboso 💅');
     }
 
-    await conn.sendMessage(m.chat, { react: { text: '💘', key: m.key }});
+    await conn.sendMessage(m.chat, { react: { text: '💋', key: m.key }});
 
     if (fantasmas.length === 0) {
-      return m.reply(`╭─🌟 *Hinata Bot* 🌟─➤
+      return m.reply(`╭── ✨ *Hinata Bot* ✨
 │
-│  Todos han hablado 🥰
-│  ¡No hay fantasmitas para sacar~! ✨
-╰─────────────🌸`);
+│  Todos han hablado, qué delicia~ 😚
+│  Nadie pa’ patear el culo 💔
+╰─────────────😜`);
     }
 
-    await conn.reply(m.chat, `╭──💘 *Hinata-chan en modo traviesa* 💘\n│\n│  Bye bye fantasmitas~ 😚\n│  Los saco con amor porque no hablan uwu~\n│\n╰─✨ Total a eliminar: *${fantasmas.length}*`, m);
+    await conn.reply(m.chat, `╭── 😈 *Hinata en modo bruja* 😈
+│
+│  Bye bye fantasmas 🧹💨
+│  No me sirven si no hablan, fueraaa 💋
+│
+╰─🔪 Eliminando *${fantasmas.length}* 🩸`, m);
 
     for (let id of fantasmas) {
       try {
         await conn.groupParticipantsUpdate(m.chat, [id], 'remove');
-        await new Promise(resolve => setTimeout(resolve, 1500)); // anti-baneo
+        await new Promise(resolve => setTimeout(resolve, 1500));
       } catch (e) {
-        await m.reply(`❌ No pude sacar a @${id.split('@')[0]}... creo que tiene protección divina 💔`, null, {
+        await m.reply(`❌ No pude sacar a @${id.split('@')[0]}... seguro le reza a algún dios 😒`, null, {
           mentions: [id]
         });
       }
