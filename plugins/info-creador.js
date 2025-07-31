@@ -11,7 +11,7 @@ let handler = async (m, { conn, usedPrefix, text, args, command }) => {
         vcard: `BEGIN:VCARD
 VERSION:3.0
 FN:🐉𝙉𝙚𝙤𝙏𝙤𝙠𝙮𝙤 𝘽𝙚𝙖𝙩𝙨🐲
-item1.TEL;waid=50248019799:50248019799
+item1.TEL;waid=573142495895:573142495895
 item1.X-ABLabel:Número
 item2.EMAIL;type=INTERNET:youremail@example.com
 item2.X-ABLabel:Email
