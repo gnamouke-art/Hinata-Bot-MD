@@ -7,14 +7,17 @@ const REPO_URL = 'https://github.com/TOKIO5025/Hinata-Bot-MD.git';
 const REPO_BRANCH = 'main';
 
 let handler = async (m) => {
-  const allowedUser = '50248019799'; // solo tú
+  const senderNumber = m.sender.split('@')[0];
 
-  if (m.sender.split('@')[0] !== allowedUser) {
-    return m.reply('❌ Este comando solo está disponible para mi creadora suprema 💖.');
+  // 💥 Números con acceso exclusivo al comando
+  const permitidos = ['50248019799', '', '573142495895'];
+
+  if (!permitidos.includes(senderNumber)) {
+    return m.reply('🚫 *¡Tú no tienes acceso a esta magia prohibida, mi cielito! 😾 Solo mis dioses pueden usar esto.*');
   }
 
   try {
-    await m.reply('🌀 *Buscando actualizaciones...*');
+    await m.reply('🌀 *Revisando si hay chismes nuevos en el repo... espera sabrosón(a)*');
 
     // Limpiar carpeta temporal
     await execPromise('rm -rf ./tmp-repo');
@@ -27,19 +30,18 @@ let handler = async (m) => {
 
     if (!diffOutput.trim()) {
       await execPromise('rm -rf ./tmp-repo');
-      return m.reply('✅ *El bot ya está actualizado.*');
+      return m.reply('✅ *Ya estaba bien buenote el bot, no había nada que actualizar 😎.*');
     }
 
     // Aplicar cambios
     await execPromise('cp -ru ./tmp-repo/* ./');
     await execPromise('rm -rf ./tmp-repo');
 
-    // ✅ Mostrar solo confirmación
-    await m.reply('✅ *Bot actualizado correctamente.*');
+    await m.reply('✅ *Listo bebé, tu bot quedó actualizado y más rico que nunca 💋.*');
 
   } catch (e) {
     console.error(e);
-    await m.reply('❌ *Error durante la actualización:*\n' + (e.message || e));
+    await m.reply('❌ *Oops... algo salió mal mientras te ponía al día el bot 😿:*\n' + (e.message || e));
   }
 };
 
