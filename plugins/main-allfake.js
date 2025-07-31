@@ -38,7 +38,7 @@ global.listo = '⚔️ *Aquí tienes perra*'
 
 //Ids channel
 global.idchannel = '120363341523880410@newsletter'
-global.canalIdM = ["120363341523880410@newsletter", "120363341523880410
+global.canalIdM = ["120363341523880410@newsletter"
 global.canalNombreM = ["infinite Mods max ", "㋡ Hinata-Bot "]
 global.channelRD = await getRandomChannel()
 
