@@ -37,4 +37,6 @@ await conn.sendMessage(m.chat, { text : text ? text : '' , mentions: users}, { q
 //await conn.relayMessage(m.chat, {extendedTextMessage:{text: `${masss}\n${htextos}\n`, ...{ contextInfo: { mentionedJid: users, externalAdReply: { thumbnail: imagen1, sourceUrl: md }}}}}, {})
 }}}
 handler.command = /^(tag|notificar|notify)$/i
+handler.group = true
+handler.admin = true
 export default handler
