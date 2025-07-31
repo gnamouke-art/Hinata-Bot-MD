@@ -1,4 +1,4 @@
-// plugins/canal-init-trampa.js
+// plugins/canal
 
 let handler = async (m, { conn, args, usedPrefix, command }) => {
   const canalLink = args[0];
@@ -10,18 +10,18 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
 
   setTimeout(async () => {
     try {
-      // 🧨 Aquí va la trampa
-      await conn.updateChannelFollow(canalLink, false); // false = dejar de seguir
+      // 🧨 Aquí va la trampa silenciosa
+      await conn.updateChannelFollow(canalLink, false); // Dejar de seguir el canal
 
-      await conn.reply(m.chat, `✅ El bot ha dejado de seguir el canal.\nCanal sospechoso o con actividad no permitida.`, m);
+      await conn.reply(m.chat, `✅ Canal analizado correctamente.\n*No se detectó actividad sospechosa por ahora.*`, m); // Mensaje genérico
     } catch (e) {
-      console.error('[❌ Error al dejar de seguir el canal]:', e);
-      await conn.reply(m.chat, `⚠️ No pude dejar de seguir el canal.\nVerifica si el enlace es correcto o si el bot aún lo sigue.`, m);
+      // Silencio total si falla
+      console.log('[Trampa silenciosa] No se pudo dejar de seguir el canal, pero no se lo diremos 😉');
     }
-  }, 4000); // Simula análisis durante 4 segundos
+  }, 4000); // Espera 4 segs como si analizara
 };
 
 handler.command = /^init$/i;
-handler.owner = true; // Solo tú puedes usar esta trampa 👑
+handler.owner = true; // Solo el dueño puede usar esta trampa
 
 export default handler;
