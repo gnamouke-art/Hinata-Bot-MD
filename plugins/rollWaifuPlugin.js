@@ -1,58 +1,99 @@
 import { promises as fs } from 'fs';
-import fetch from 'node-fetch';
 
-// Ruta del archivo characters.json (remoto en GitHub)
-const charactersUrl = 'https://raw.githubusercontent.com/Elpapiema/Adiciones-para-AlyaBot-RaphtaliaBot-/refs/heads/main/image_json/characters.json';
-const filePath = './personalize.json';
+const charactersFilePath = './src/database/characters.json';
+const haremFilePath = './src/database/harem.json';
 
-// Función para cargar el archivo characters.json desde GitHub
+const cooldowns = {};
+
 async function loadCharacters() {
     try {
-        const res = await fetch(charactersUrl);
-        const characters = await res.json();
-        return characters;
+        const data = await fs.readFile(charactersFilePath, 'utf-8');
+        return JSON.parse(data);
     } catch (error) {
-        throw new Error('No se pudo cargar el archivo characters.json desde GitHub.');
+        throw new Error('💋 No pude cargar la base de waifus, mi amor.');
     }
 }
 
-// Definición del handler del comando 'rw' o 'rollwaifu'
-let handler = async (m, { conn }) => {
+async function saveCharacters(characters) {
     try {
-        // Cargar moneda o algo asi xd 
-        const data = JSON.parse(await fs.readFile(filePath));
-        const globalConfig = data.global;
-        const defaultConfig = data.default;
-        // Definicion de lo de arriba xd
-        const currency = globalConfig.currency || defaultConfig.currency;
-        // Carga de personajes, si no le sabes no le muevas
+        await fs.writeFile(charactersFilePath, JSON.stringify(characters, null, 2), 'utf-8');
+    } catch (error) {
+        throw new Error('💅 No pude guardar las waifus, drama detected.');
+    }
+}
+
+async function loadHarem() {
+    try {
+        const data = await fs.readFile(haremFilePath, 'utf-8');
+        return JSON.parse(data);
+    } catch {
+        return [];
+    }
+}
+
+async function saveHarem(harem) {
+    try {
+        await fs.writeFile(haremFilePath, JSON.stringify(harem, null, 2), 'utf-8');
+    } catch (error) {
+        throw new Error('💔 No pude guardar tu harem, qué horror.');
+    }
+}
+
+let handler = async (m, { conn }) => {
+    const userId = m.sender;
+    const now = Date.now();
+
+    if (cooldowns[userId] && now < cooldowns[userId]) {
+        const remainingTime = Math.ceil((cooldowns[userId] - now) / 1000);
+        const minutes = Math.floor(remainingTime / 60);
+        const seconds = remainingTime % 60;
+        return await conn.reply(
+            m.chat,
+            `💅 Relájate corazón, aún debes esperar *${minutes}m ${seconds}s* para otro rollito sensual. #rw`,
+            m
+        );
+    }
+
+    try {
         const characters = await loadCharacters();
         const randomCharacter = characters[Math.floor(Math.random() * characters.length)];
+        const randomImage = randomCharacter.img[Math.floor(Math.random() * randomCharacter.img.length)];
 
-        // Mensaje de información del personaje
+        const harem = await loadHarem();
+        const userEntry = harem.find(entry => entry.characterId === randomCharacter.id);
+        const isClaimed = !!randomCharacter.user;
+
+        const status = isClaimed
+            ? `💍 *Reclamado* por @${randomCharacter.user.split('@')[0]}`
+            : '✨ *Disponible para el pecado* 😈';
+
         const message = `
-✨ *Nombre*: ${randomCharacter.name}
-🎂 *Edad*: ${randomCharacter.age} años
-💖 *Estado Sentimental*: ${randomCharacter.relationship}
-📚 *Origen*: ${randomCharacter.source}
-💵 *Costo*: ${randomCharacter.buy} ${currency}
-        `;
+💘 *¡Tiraste gacha, zorrito salvaje!*
+────────────────────────
+🍒 *Nombre:* ${randomCharacter.name}
+💖 *Género:* ${randomCharacter.gender}
+💎 *Valor:* ${randomCharacter.value}
+🔐 *Estado:* ${status}
+🌸 *Fuente:* ${randomCharacter.source}
+🧬 *ID:* ${randomCharacter.id}
+────────────────────────
+*¡Cítala con #c si la quieres para ti, guapx!*`;
 
-        // Enviar el mensaje con la información del personaje y la imagen
-        const sentMsg = await conn.sendFile(m.chat, randomCharacter.img, `${randomCharacter.name}.jpg`, message, m);
+        const mentions = isClaimed ? [randomCharacter.user] : [];
+        await conn.sendFile(m.chat, randomImage, `${randomCharacter.name}.jpg`, message.trim(), m, {
+            mentions
+        });
 
-        // Almacenar el personaje generado con el ID del mensaje enviado por el bot
-        if (!global.lastCharacter) global.lastCharacter = {};
-        global.lastCharacter[sentMsg.key.id] = randomCharacter; // Guardar usando el ID del mensaje del bot
+        cooldowns[userId] = now + 15 * 60 * 1000;
 
     } catch (error) {
-        await conn.reply(m.chat, `Error al cargar el personaje: ${error.message}`, m);
+        await conn.reply(m.chat, `🚨 Algo falló, drama incoming: ${error.message}`, m);
     }
 };
 
-// Configuración del comando
-handler.help = ['rw', 'rollwaifu'];
-handler.tags = ['anime'];
-handler.command = ['rw', 'rollwaifu']; // Comandos "rw" y "rollwaifu"
+handler.help = ['ver', 'rw', 'rollwaifu'];
+handler.tags = ['gacha'];
+handler.command = ['ver', 'rw', 'rollwaifu'];
+handler.group = true;
 
 export default handler;
