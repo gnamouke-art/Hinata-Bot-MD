@@ -1,27 +1,31 @@
 import gtts from 'node-gtts';
-import { readFileSync, unlinkSync } from 'fs';
-import { join } from 'path';
+import { readFileSync, unlinkSync, existsSync, mkdirSync } from 'fs';
+import { join, dirname } from 'path';
 
 const defaultLang = 'es';
 
 const handler = async (m, { conn, args, usedPrefix, command }) => {
   let lang = args[0];
   let text = args.slice(1).join(' ');
-
+  
   if ((args[0] || '').length !== 2) {
     lang = defaultLang;
     text = args.join(' ');
   }
 
   if (!text && m.quoted?.text) text = m.quoted.text;
+  if (!text) return conn.reply(m.chat, `🚩 *Te faltó el texto para convertir a voz*\n\n📌 *Ejemplo:* ${usedPrefix + command} Hola amorcito`, m);
 
-  if (!text) return conn.reply(m.chat, `👅 *Ay tontito(a)... dime algo para decirlo en voz sexy*\n\n*Ejemplo:*\n${usedPrefix + command} es Hinata la más rica`, m);
-
+  let res;
   try {
-    const res = await tts(text, lang);
-    if (res) await conn.sendFile(m.chat, res, 'voz-sexy.opus', null, m, true);
+    res = await tts(text, lang);
   } catch (e) {
-    return conn.reply(m.chat, `😾 *Ups bebé, algo falló al convertir tu texto...*\n\n❗ Error:\n${e}`, m);
+    res = await tts(text, defaultLang);
+  }
+
+  if (res) {
+    await conn.sendMessage(m.chat, { audio: { url: res }, mimetype: 'audio/mpeg', ptt: true }, { quoted: m });
+    await conn.sendMessage(m.chat, { react: { text: '🎤', key: m.key } });
   }
 };
 
@@ -35,11 +39,15 @@ function tts(text, lang = 'es') {
   return new Promise((resolve, reject) => {
     try {
       const tts = gtts(lang);
-      const filePath = join(global.__dirname(import.meta.url), '../tmp', `${Date.now()}.wav`);
-      tts.save(filePath, text, () => {
-        const audio = readFileSync(filePath);
-        unlinkSync(filePath);
-        resolve(audio);
+      const dir = join(process.cwd(), 'tmp');
+      if (!existsSync(dir)) mkdirSync(dir);
+      const file = join(dir, `${Date.now()}.mp3`);
+
+      tts.save(file, text, () => {
+        resolve(file);
+        setTimeout(() => {
+          if (existsSync(file)) unlinkSync(file);
+        }, 30_000); // Elimina el archivo después de 30 segundos
       });
     } catch (e) {
       reject(e);
