@@ -3,49 +3,43 @@ export const handler = async (m, { conn, args, usedPrefix, command }) => {
   if (!texto) {
     return conn.reply(
       m.chat,
-      `💋 *¿Y el texto, tontito?*\n\n👉 Usa el comando así:\n${usedPrefix + command} <texto que quieras decir>\n\n📌 *Ejemplo:*\n${usedPrefix + command} Hola papi, ¿me extrañaste?`,
+      `✳️ *Uso correcto:*\n${usedPrefix + command} <texto>\n\n📌 *Ejemplo:*\n${usedPrefix + command} Hola, ¿cómo estás?`,
       m
     )
   }
 
-  // Reacción de procesando 🔵
+  // Reacción de inicio
   await conn.sendMessage(m.chat, { react: { text: '🔵', key: m.key } })
 
   try {
     const url = `https://api.siputzx.my.id/api/tools/ttsgoogle?text=${encodeURIComponent(texto)}`
     const res = await fetch(url)
 
-    if (!res.ok) throw '❌ No se pudo obtener el audio.'
+    if (!res.ok) throw '❌ Error al generar el audio.'
 
     const buffer = await res.arrayBuffer()
+    const audio = Buffer.from(buffer)
 
     await conn.sendMessage(
       m.chat,
       {
-        audio: Buffer.from(buffer),
-        mimetype: 'audio/mp4',
+        audio,
+        mimetype: 'audio/ogg; codecs=opus',
         ptt: true
       },
       { quoted: m }
     )
 
-    // Reacción de éxito 🟢
     await conn.sendMessage(m.chat, { react: { text: '🟢', key: m.key } })
 
   } catch (e) {
     console.error(e)
-    // Reacción de error 🔴
     await conn.sendMessage(m.chat, { react: { text: '🔴', key: m.key } })
-    conn.reply(
-      m.chat,
-      '❌ *Ay no... fallé como perra y como bot.*\nIntenta otra vez más tarde 💔',
-      m
-    )
+    conn.reply(m.chat, '❌ No se pudo generar el audio. Asegúrate de que el texto no sea muy largo.', m)
   }
 }
 
 handler.help = ['tts <texto>']
 handler.tags = ['herramientas']
 handler.command = /^tts$/i
-
 export default handler
