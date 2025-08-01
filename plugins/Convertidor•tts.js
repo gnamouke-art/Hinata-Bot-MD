@@ -1,56 +1,45 @@
-import gtts from 'node-gtts';
-import { readFileSync, unlinkSync, existsSync, mkdirSync } from 'fs';
-import { join, dirname } from 'path';
-
-const defaultLang = 'es';
-
-const handler = async (m, { conn, args, usedPrefix, command }) => {
-  let lang = args[0];
-  let text = args.slice(1).join(' ');
-  
-  if ((args[0] || '').length !== 2) {
-    lang = defaultLang;
-    text = args.join(' ');
+export const handler = async (m, { conn, args, usedPrefix, command }) => {
+  const texto = args.join(' ')
+  if (!texto) {
+    return conn.reply(
+      m.chat,
+      `✳️ *Uso correcto:*\n${usedPrefix + command} <texto>\n\n📌 *Ejemplo:*\n${usedPrefix + command} Hola, ¿cómo estás?`,
+      m
+    )
   }
 
-  if (!text && m.quoted?.text) text = m.quoted.text;
-  if (!text) return conn.reply(m.chat, `🚩 *Te faltó el texto para convertir a voz*\n\n📌 *Ejemplo:* ${usedPrefix + command} Hola amorcito`, m);
+  // Reacción de inicio
+  await conn.sendMessage(m.chat, { react: { text: '🔵', key: m.key } })
 
-  let res;
   try {
-    res = await tts(text, lang);
+    const url = `https://api.siputzx.my.id/api/tools/ttsgoogle?text=${encodeURIComponent(texto)}`
+    const res = await fetch(url)
+
+    if (!res.ok) throw 'Error al obtener el audio.'
+
+    const buffer = await res.arrayBuffer()
+
+    await conn.sendMessage(
+      m.chat,
+      {
+        audio: Buffer.from(buffer),
+        mimetype: 'audio/mp4',
+        ptt: true
+      },
+      { quoted: m }
+    )
+
+    // Reacción de éxito
+    await conn.sendMessage(m.chat, { react: { text: '🟢', key: m.key } })
+
   } catch (e) {
-    res = await tts(text, defaultLang);
+    console.error(e)
+    await conn.sendMessage(m.chat, { react: { text: '🔴', key: m.key } })
+    conn.reply(m.chat, '🔴 Ocurrió un error al generar el audio.', m)
   }
-
-  if (res) {
-    await conn.sendMessage(m.chat, { audio: { url: res }, mimetype: 'audio/mpeg', ptt: true }, { quoted: m });
-    await conn.sendMessage(m.chat, { react: { text: '🎤', key: m.key } });
-  }
-};
-
-handler.help = ['tts <lang> <texto>'];
-handler.tags = ['tools'];
-handler.command = ['tts', 'gtts'];
-
-export default handler;
-
-function tts(text, lang = 'es') {
-  return new Promise((resolve, reject) => {
-    try {
-      const tts = gtts(lang);
-      const dir = join(process.cwd(), 'tmp');
-      if (!existsSync(dir)) mkdirSync(dir);
-      const file = join(dir, `${Date.now()}.mp3`);
-
-      tts.save(file, text, () => {
-        resolve(file);
-        setTimeout(() => {
-          if (existsSync(file)) unlinkSync(file);
-        }, 30_000); // Elimina el archivo después de 30 segundos
-      });
-    } catch (e) {
-      reject(e);
-    }
-  });
 }
+
+handler.help = ['tts <texto-voz>']
+handler.tags = ['herramientas']
+handler.command = /^tts$/i
+export default handler
