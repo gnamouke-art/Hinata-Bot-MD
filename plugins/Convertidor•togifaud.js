@@ -1,40 +1,45 @@
 let handler = async (m, { conn, usedPrefix, command }) => {
-  if (!m.quoted) {
-    return conn.reply(m.chat, `💋 *Bebé...* responde a un *video* para convertirlo en gif con audio 😈\n\nEjemplo:\n1. Manda un video 📹\n2. Responde con *.${command}* y déjame hacer mi magia ✨`, m)
-  }
+  const rwait = '⏳ Espera mi amorcito, estoy convirtiendo el video...';
+  const done = '✅ Listo bb, aquí tienes tu gif animado';
+  const icons = 'https://files.cloudkuimages.guru/images/3rfWPs0h.jpg'; // Puedes poner tu imagen personalizada aquí
+  const fkontak = { key: { fromMe: false, participant: "0@s.whatsapp.net", ...(m.chat ? { remoteJid: m.chat } : {}) }, message: { contactMessage: { displayName: "Hinata 𝘽𝙤𝙩", vcard: `BEGIN:VCARD\nVERSION:3.0\nFN:𝐕𝐋𝐀𝐃𝐈𝐋𝐄𝐍𝐀\nORG:𝐕𝐋𝐀𝐃𝐈𝐋𝐄𝐍𝐀 𝘽𝙤𝙩;\nTEL;type=CELL;type=VOICE;waid=573142495895:+57 314 2495895\nEND:VCARD` } } };
+  const waitSticker = 'https://files.cloudkuimages.guru/images/3rfWPs0h.jpg'; // Imagen del mensaje "wait"
+  const packname = '𝐕𝐋𝐀𝐃𝐈𝐋𝐄𝐍𝐀 𝘽𝙤𝙩 💕';
+  const dev = 'Creado por 🐉𝙉𝙚𝙤𝙏𝙤𝙆𝙮𝙤 𝘽𝙚𝙖𝙩𝙨🐲';
+  const channel = 'https://whatsapp.com/channel/0029Vaqe1Iv65yDAKBYr6z0A';
 
-  conn.reply(m.chat, `⏳ *Espera chiquito...* Estoy convirtiendo tu videíto en un sexy gif 🔥`, m, {
+  if (!m.quoted) return conn.reply(m.chat, `🚩 Responde a un *video mi cielo* para convertirlo en gif.`, m);
+
+  let q = m.quoted || m;
+  let mime = (q.msg || q).mimetype || '';
+  if (!/video\/mp4/.test(mime)) return conn.reply(m.chat, `🚩 Eso no es un *video mi amor*. Responde a un video mp4.`, m);
+
+  await m.react('💫');
+  let media = await q.download();
+
+  await conn.reply(m.chat, rwait, m, {
     contextInfo: {
       externalAdReply: {
-        mediaUrl: null,
+        mediaUrl: channel,
         mediaType: 1,
         showAdAttribution: true,
         title: packname,
         body: dev,
         previewType: 0,
-        thumbnail: icons,
+        thumbnailUrl: icons,
         sourceUrl: channel
       }
     }
-  })
+  });
 
-  const q = m.quoted || m
-  let mime = (q.msg || q).mimetype || ''
-  if (!/mp4/.test(mime)) {
-    return conn.reply(m.chat, `🚫 *Eso no es un video, amor...*\nResponde correctamente a un *video corto* para que lo convierta en gif 💞`, m)
-  }
+  let caption = '✨ *Aquí está tu gif mi vida.*\n\n💋 *Disfrútalo con amor, te lo da 𝐕𝐋𝐀𝐃𝐈𝐋𝐄𝐍𝐀 💕*';
+  await conn.sendMessage(m.chat, { video: media, gifPlayback: true, caption }, { quoted: fkontak });
 
-  await m.react(rwait)
+  await m.react('✅');
+};
 
-  let media = await q.download()
-  let caption = `💖 *Listo bebé, aquí tienes tu gif sexy con audio.*\n_¿Te gustó? 😘_`
+handler.help = ['togifaud'];
+handler.tags = ['convertidor'];
+handler.command = ['togifaud'];
 
-  conn.sendMessage(m.chat, { video: media, gifPlayback: true, caption }, { quoted: fkontak })
-  
-  await m.react(done)
-}
-
-handler.help = ['togifaud']
-handler.tags = ['transformador']
-handler.command = ['togifaud']
-export default handler
+export default handler;
