@@ -1,61 +1,47 @@
-const handler = async (m, { conn, text, command, usedPrefix }) => {
-  if (m.mentionedJid.includes(conn.user.jid)) return;
+// 💋 Comando .advertencia – Hinata Bot
+// 😈 Sistema de advertencias coquetas y expulsión automática
+import fs from 'fs';
 
-  let who;
-  if (m.isGroup) {
-    who = m.mentionedJid[0]
-      ? m.mentionedJid[0]
-      : m.quoted
-      ? m.quoted.sender
-      : text;
-  } else who = m.chat;
+let handler = async (m, { conn, text, args, participants, groupMetadata, isAdmin, isBotAdmin }) => {
+  if (!m.isGroup) return conn.reply(m.chat, '🍑 Este comando solo funciona en grupos, bebé.', m);
+  if (!isAdmin) return conn.reply(m.chat, '👀 Solo los admins pueden dar advertencias, mi ciela.', m);
+  if (!isBotAdmin) return conn.reply(m.chat, '💢 Hazme admin primero, tontito. ¿Cómo quieres que te ayude si no tengo poder?', m);
 
-  const user = global.db.data.users[who];
-  const bot = global.db.data.settings[conn.user.jid] || {};
-  const motivo = text || 'Sin motivo, pero igual te la ganaste 💅';
-  const reasonText = motivo.replace(/@\d+-?\d* /g, '');
+  let user = m.mentionedJid[0] || m.quoted?.sender;
+  if (!user) return conn.reply(m.chat, '🎯 Etiqueta a alguien para darle su advertencia merecida.', m);
+  if (user === conn.user.jid) return conn.reply(m.chat, '😇 No me puedo advertir a mí misma, soy perfecta.', m);
 
-  const warnUsage = `👀 *¿Y a quién querés que le aviente la advertencia, bebecito?*\n\n✨ *Usa el comando así:* ${usedPrefix + command} @usuario razón`;
+  let path = './src/database/advertencias.json';
+  if (!fs.existsSync(path)) fs.writeFileSync(path, '{}');
+  let data = JSON.parse(fs.readFileSync(path));
+  if (!data[m.chat]) data[m.chat] = {};
+  if (!data[m.chat][user]) data[m.chat][user] = 0;
 
-  if (!who) {
-    throw m.reply(warnUsage, m.chat, {
-      mentions: conn.parseMention(warnUsage),
+  data[m.chat][user]++;
+  fs.writeFileSync(path, JSON.stringify(data, null, 2));
+
+  let advertencias = data[m.chat][user];
+
+  if (advertencias >= 3) {
+    if (isBotAdmin) {
+      await conn.reply(m.chat, `💣 *${advertencias} ADVERTENCIAS*\nEste usuario ya colmó mi paciencia...\n🚫 ¡A la verga fuera del grupo!`, m);
+      await conn.groupParticipantsUpdate(m.chat, [user], 'remove');
+      delete data[m.chat][user];
+      fs.writeFileSync(path, JSON.stringify(data, null, 2));
+    } else {
+      conn.reply(m.chat, '💢 Quiero eliminarlo pero no soy admin, mi amor...', m);
+    }
+  } else {
+    conn.reply(m.chat, `🚩 Se registró una advertencia para @${user.split('@')[0]}\n📛 Total: *${advertencias}/3* advertencias.`, m, {
+      mentions: [user]
     });
   }
-
-  user.warn += 1;
-
-  await m.reply(
-    `👠 *@${who.split`@`[0]}*, mi ciela, acabas de ganarte una *ADVERTENCIA* 💋\n\n💢 *Motivo:* ${reasonText}\n⚠️ *Advertencias:* ${user.warn}/3\n\nPórtate lindo o te vuelo del grupo, mi amor 💅`,
-    null,
-    { mentions: [who] }
-  );
-
-  if (user.warn >= 3) {
-    user.warn = 0;
-
-    await m.reply(
-      `💅 Ya te lo advertí, @${
-        who.split`@`[0]
-      }...\n🤬 *3 advertencias* y se te acabó el recreo, chao chao 💋`,
-      null,
-      { mentions: [who] }
-    );
-
-    try {
-      await conn.groupParticipantsUpdate(m.chat, [who], 'remove');
-    } catch (e) {
-      await m.reply(`❌ No pude sacar al usuario... ¿Será que soy solo una diosa limitada? 😿`);
-    }
-  }
-
-  return !1;
 };
 
-handler.command = /^(advertir|advertencia|warn|warning)$/i;
-handler.admin = true;
-handler.register = true;
+handler.help = ['advertencia @usuario'];
+handler.tags = ['group'];
+handler.command = ['advertencia', 'advertir', 'warn'];
 handler.group = true;
+handler.admin = true;
 handler.botAdmin = true;
-
 export default handler;
