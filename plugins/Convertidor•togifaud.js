@@ -1,13 +1,15 @@
+
 let handler = async (m, { conn, usedPrefix, command }) => {
-  const rwait = '⏳ Espera mi amorcito, estoy procesando el video con audio...';
-  const done = '✅ Listo bb, aquí tienes tu video con audio incluido 🎶';
-  const icons = 'https://files.cloudkuimages.guru/images/3rfWPs0h.jpg';
+  const rwait = '⏳ Espera mi amorcito, estoy convirtiendo el video...';
+  const done = '✅ Listo bb, aquí tienes tu gif animado';
+  const icons = 'https://files.cloudkuimages.guru/images/3rfWPs0h.jpg'; // Puedes poner tu imagen personalizada aquí
   const fkontak = { key: { fromMe: false, participant: "0@s.whatsapp.net", ...(m.chat ? { remoteJid: m.chat } : {}) }, message: { contactMessage: { displayName: "Hinata 𝘽𝙤𝙩", vcard: `BEGIN:VCARD\nVERSION:3.0\nFN:𝐕𝐋𝐀𝐃𝐈𝐋𝐄𝐍𝐀\nORG:𝐕𝐋𝐀𝐃𝐈𝐋𝐄𝐍𝐀 𝘽𝙤𝙩;\nTEL;type=CELL;type=VOICE;waid=573142495895:+57 314 2495895\nEND:VCARD` } } };
+  const waitSticker = 'https://files.cloudkuimages.guru/images/3rfWPs0h.jpg'; // Imagen del mensaje "wait"
   const packname = 'Hinata 𝘽𝙤𝙩 💕';
   const dev = 'Creado por 🐉𝙉𝙚𝙤𝙏𝙤𝙆𝙮𝙤 𝘽𝙚𝙖𝙩𝙨🐲';
   const channel = 'https://whatsapp.com/channel/0029Vaqe1Iv65yDAKBYr6z0A';
 
-  if (!m.quoted) return conn.reply(m.chat, `🚩 Responde a un *video mi cielo* para convertirlo.`, m);
+  if (!m.quoted) return conn.reply(m.chat, `🚩 Responde a un *video mi cielo* para convertirlo en gif.`, m);
 
   let q = m.quoted || m;
   let mime = (q.msg || q).mimetype || '';
@@ -31,8 +33,8 @@ let handler = async (m, { conn, usedPrefix, command }) => {
     }
   });
 
-  let caption = '🎥 *Aquí está tu video con audio, mi cielo.*\n\n💋 *Disfrútalo con amor, te lo da 𝐕𝐋𝐀𝐃𝐈𝐋𝐄𝐍𝐀 𝘽𝙤𝙩 💕*';
-  await conn.sendMessage(m.chat, { video: media, caption }, { quoted: fkontak }); // Sin gifPlayback
+  let caption = '✨ *Aquí está tu gif mi vida.*\n\n💋 *Disfrútalo con amor, te lo da HINATA BOT 💕*';
+  await conn.sendMessage(m.chat, { video: media, gifPlayback: true, caption }, { quoted: fkontak });
 
   await m.react('✅');
 };
