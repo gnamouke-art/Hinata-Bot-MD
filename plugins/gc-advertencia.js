@@ -11,10 +11,11 @@ const handler = async (m, { conn, text, command, usedPrefix }) => {
   } else who = m.chat;
 
   const user = global.db.data.users[who];
+  const bot = global.db.data.settings[conn.user.jid] || {};
   const motivo = text || 'Sin motivo, pero igual te la ganaste 💅';
   const reasonText = motivo.replace(/@\d+-?\d* /g, '');
 
-  const warnUsage = `💢 *¿Y a quién quieres que le dé su advertencia, mi ciela?*\n\n*—◉ Usa el comando así:*\n*${usedPrefix + command} @usuario razón*`;
+  const warnUsage = `👀 *¿Y a quién querés que le aviente la advertencia, bebecito?*\n\n✨ *Usa el comando así:* ${usedPrefix + command} @usuario razón`;
 
   if (!who) {
     throw m.reply(warnUsage, m.chat, {
@@ -25,9 +26,7 @@ const handler = async (m, { conn, text, command, usedPrefix }) => {
   user.warn += 1;
 
   await m.reply(
-    `👠 *@${
-      who.split`@`[0]
-    }*, mi amorcito lindo, acabas de comerte una *ADVERTENCIA* 😘\n💢 *Motivo:* ${reasonText}\n⚠️ *Advertencias:* ${user.warn}/3\n\nPórtate bonito o te saco con mis propias manos 💋`,
+    `👠 *@${who.split`@`[0]}*, mi ciela, acabas de ganarte una *ADVERTENCIA* 💋\n\n💢 *Motivo:* ${reasonText}\n⚠️ *Advertencias:* ${user.warn}/3\n\nPórtate lindo o te vuelo del grupo, mi amor 💅`,
     null,
     { mentions: [who] }
   );
@@ -36,14 +35,18 @@ const handler = async (m, { conn, text, command, usedPrefix }) => {
     user.warn = 0;
 
     await m.reply(
-      `💅 Ya te lo dije varias veces...\n@${
+      `💅 Ya te lo advertí, @${
         who.split`@`[0]
-      }, superaste las *3 advertencias* y ahora te vas a volar del grupo, mi cielo 💋✨`,
+      }...\n🤬 *3 advertencias* y se te acabó el recreo, chao chao 💋`,
       null,
       { mentions: [who] }
     );
 
-    await conn.groupParticipantsUpdate(m.chat, [who], 'remove');
+    try {
+      await conn.groupParticipantsUpdate(m.chat, [who], 'remove');
+    } catch (e) {
+      await m.reply(`❌ No pude sacar al usuario... ¿Será que soy solo una diosa limitada? 😿`);
+    }
   }
 
   return !1;
